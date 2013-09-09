@@ -10,13 +10,10 @@ module Report
             add_title
 
             add_blank_rows(5)
-            add_company_details
+            add_report_metadata
             add_blank_rows(2)
 
-            add_row([
-              "Description", "Short\nCode", "Qty", "Unit\nCost", "Amount", "Included\nTax",
-              "Specific\nTax", "VAT", "Amount\nAfter\nTax", "Revenue\nShare"
-            ], :height => 37)
+            add_table
           end
           package.serialize("smart.xlsx")
         end
