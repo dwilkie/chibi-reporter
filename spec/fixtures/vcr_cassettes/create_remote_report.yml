@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://admin:secret@localhost:5000/report.json
+    body:
+      encoding: UTF-8
+      string: report[month]=8&report[year]=2013
+    headers: {}
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Date:
+      - Sun, 08 Sep 2013 18:33:38 GMT
+      Status:
+      - 201 Created
+      Connection:
+      - close
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Ua-Compatible:
+      - chrome=1
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"7215ee9c7d9dc229d2921a40e899ec5f"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - d2b9837e-af4a-4ff1-bf79-5c427d26e748
+      X-Runtime:
+      - '0.009618'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: ' '
+    http_version:
+  recorded_at: Sun, 08 Sep 2013 18:33:38 GMT
+recorded_with: VCR 2.5.0

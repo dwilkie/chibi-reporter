@@ -1,40 +1,54 @@
 require 'spec_helper'
-require './app/models/report/chibi'
+require './app/models/report/remote'
 
 module Report
-  describe Chibi do
-    describe "#generate!" do
-      include WebMockHelpers
+  describe Remote do
+    include WebMockHelpers
 
-      def asserted_uri
-        URI.parse(ENV['REMOTE_REPORT_URL'])
-      end
+    def asserted_uri
+      URI.parse(ENV['REMOTE_REPORT_URL'])
+    end
 
-      def expect_remote_report_request(&block)
-        VCR.use_cassette(:remote_report) do
+    describe ".process!", :focus do
+      def expect_get_remote_report(&block)
+        VCR.use_cassette(:get_remote_report) do
           yield
         end
       end
 
-      before do
-        subject.stub(:sleep)
+      def report
+        Remote
       end
 
-      it "should request a remote report to be generated", :focus do
-        expect_remote_report_request do
+      context "given the remote report is not available" do
+
+      end
+
+      context "given the remote report is available" do
+        it "should get the remote report" do
+
+          expect_get_remote_report do
+            report.process!
+          end
+        end
+      end
+    end
+
+    describe "#generate!" do
+      def expect_create_remote_report(&block)
+        VCR.use_cassette(:create_remote_report) do
+          yield
+        end
+      end
+
+      it "should request a remote report to be generated" do
+        expect_create_remote_report do
           subject.generate!
           first_request(:method).should == :post
           uri = first_request.uri
           uri.user.should == asserted_uri.user
           uri.password.should == asserted_uri.password
           uri.path.should == asserted_uri.path
-        end
-      end
-
-      it "should sleep for 10 seconds" do
-        expect_remote_report_request do
-          subject.should_receive(:sleep).with(10)
-          subject.generate!
         end
       end
 
@@ -49,9 +63,8 @@ module Report
 
         context "and no month or year has been specified for this report" do
           it "should request the report to be generated for December 2013" do
-            expect_remote_report_request do
-              subject = Chibi.new
-              subject.stub(:sleep)
+            expect_create_remote_report do
+              subject = Remote.new
               subject.generate!
               report_params = first_request(:body)["report"]
               report_params["year"].should == "2013"
