@@ -13,27 +13,9 @@ module Report
             add_report_metadata
             add_blank_rows(2)
 
-            add_table
+            add_services_table
           end
           package.serialize("smart.xlsx")
-        end
-
-        private
-
-        def operator_vat_tin
-          "100071112"
-        end
-
-        def operator_attention
-          "Finance Department"
-        end
-
-        def operator_address
-          "464A Preah Monivong Blvd,\nSangkat Tonle Bassac,\nKhan Chamkarmorn,\nPhnom Penh"
-        end
-
-        def operator_business_name
-          "Latelz Co., Ltd"
         end
       end
     end

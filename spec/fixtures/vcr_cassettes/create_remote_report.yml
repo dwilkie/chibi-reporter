@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://admin:secret@localhost:5000/report.json
+    uri: <%= url %>
     body:
       encoding: UTF-8
       string: report[month]=8&report[year]=2013
@@ -13,7 +13,7 @@ http_interactions:
       message: Created
     headers:
       Date:
-      - Sun, 08 Sep 2013 18:33:38 GMT
+      - Tue, 10 Sep 2013 13:19:23 GMT
       Status:
       - 201 Created
       Connection:
@@ -33,14 +33,14 @@ http_interactions:
       Cache-Control:
       - max-age=0, private, must-revalidate
       X-Request-Id:
-      - d2b9837e-af4a-4ff1-bf79-5c427d26e748
+      - 1c78cf56-6497-4806-a70a-9b73596ca6a4
       X-Runtime:
-      - '0.009618'
+      - '0.005971'
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: ' '
     http_version:
-  recorded_at: Sun, 08 Sep 2013 18:33:38 GMT
+  recorded_at: Tue, 10 Sep 2013 13:19:23 GMT
 recorded_with: VCR 2.5.0

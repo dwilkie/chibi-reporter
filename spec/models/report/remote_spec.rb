@@ -4,16 +4,26 @@ require './app/models/report/remote'
 module Report
   describe Remote do
     include WebMockHelpers
+    include ChibiReportHelpers
 
     def asserted_uri
       URI.parse(ENV['REMOTE_REPORT_URL'])
     end
 
+    def expect_remote_request(cassette, options = {}, &block)
+      options[:erb] = {:url => asserted_uri.to_s}.merge(options[:erb] || {})
+      VCR.use_cassette(cassette, options) do
+        yield
+      end
+    end
+
     describe ".process!", :focus do
       def expect_get_remote_report(&block)
-        VCR.use_cassette(:get_remote_report) do
-          yield
-        end
+        expect_remote_request(
+          :get_remote_report,
+          :erb => {:report => sample_remote_report.to_json},
+          &block
+        )
       end
 
       def report
@@ -26,7 +36,6 @@ module Report
 
       context "given the remote report is available" do
         it "should get the remote report" do
-
           expect_get_remote_report do
             report.process!
           end
@@ -36,9 +45,7 @@ module Report
 
     describe "#generate!" do
       def expect_create_remote_report(&block)
-        VCR.use_cassette(:create_remote_report) do
-          yield
-        end
+        expect_remote_request(:create_remote_report, &block)
       end
 
       it "should request a remote report to be generated" do

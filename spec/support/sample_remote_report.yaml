@@ -1,0 +1,220 @@
+report:
+  month: '8'
+  year: '2013'
+  countries:
+    kh:
+      operators:
+        smart:
+          billing:
+            recipients:
+              billing@smart.com.kh:
+                name: Makara
+            attention: Finance Department
+            vat_tin: smart_vat_tin
+            address: |-
+              464A Preah Monivong Blvd,
+              Sangkat Tonle Bassac,
+              Khan Chamkarmorn,
+              Phnom Penh
+            name: Latelz Co., Ltd
+          payment_instructions:
+            bank_name: Advanced Bank of Asia Limited (ABA)
+            account_name: Chibi Account Name Smart
+            account_number: '000012345'
+            swift_code: ABA11223
+            bank_address: |-
+              148 Preah Sihanouk Blvd,
+              Sangkat Boeung Keng Kang 1,
+              Khan Chamkarmorn,
+              Phnom Penh,
+              Cambodia
+          services:
+            sms:
+              name: iFriendship SMS
+              short_code: '2442'
+              unit_cost: '0.05'
+              specific_tax: '0.03'
+              vat: '0.1'
+              revenue_share: '0.4'
+              by_day:
+                count:
+                  '1': 950
+                  '2': 952
+                  '3': 1086
+                  '4': 636
+                  '5': 862
+                  '6': 1010
+                  '7': 876
+                  '8': 1003
+                  '9': 1031
+                  '10': 1056
+                  '11': 922
+                  '12': 905
+                  '13': 863
+                  '14': 983
+                  '15': 842
+                  '16': 801
+                  '17': 876
+                  '18': 1031
+                  '19': 954
+                  '20': 1080
+                  '21': 3901
+                  '22': 951
+                  '23': 1037
+                  '24': 1062
+                  '25': 1152
+                  '26': 1016
+                  '27': 1181
+                  '28': 1013
+                  '29': 897
+                  '30': 1678
+                  '31': 1274
+              by_month:
+                count:
+                  '8': 33881
+              quantity: 33881
+            ivr:
+              name: iFriendship IVR
+              short_code: '2442'
+              unit_cost: '0.1'
+              specific_tax: '0.03'
+              vat: '0.1'
+              revenue_share: '0.5'
+              by_day:
+                duration:
+                  '1': 273
+                  '2': 232
+                  '3': 285
+                  '4': 216
+                  '5': 171
+                  '6': 241
+                  '7': 247
+                  '8': 258
+                  '9': 228
+                  '10': 237
+                  '11': 307
+                  '12': 256
+                  '13': 252
+                  '14': 277
+                  '15': 250
+                  '16': 213
+                  '17': 234
+                  '18': 201
+                  '19': 300
+                  '20': 267
+                  '21': 190
+                  '22': 360
+                  '23': 439
+                  '24': 364
+                  '25': 373
+                  '26': 403
+                  '27': 361
+                  '28': 277
+                  '29': 345
+                  '30': 549
+                  '31': 337
+                bill_sec:
+                  '1': 271
+                  '2': 229
+                  '3': 284
+                  '4': 216
+                  '5': 170
+                  '6': 240
+                  '7': 247
+                  '8': 258
+                  '9': 225
+                  '10': 233
+                  '11': 306
+                  '12': 251
+                  '13': 252
+                  '14': 275
+                  '15': 249
+                  '16': 212
+                  '17': 232
+                  '18': 200
+                  '19': 298
+                  '20': 266
+                  '21': 189
+                  '22': 356
+                  '23': 438
+                  '24': 363
+                  '25': 372
+                  '26': 401
+                  '27': 360
+                  '28': 277
+                  '29': 344
+                  '30': 547
+                  '31': 334
+              by_month:
+                duration:
+                  '8': 8943
+                bill_sec:
+                  '8': 8906
+              quantity: 8943
+        beeline:
+          billing:
+            recipients:
+              billing@beeline.com.kh:
+                name: Phalkun
+            attention: Mr. Beeline
+            vat_tin: beeline_vat_tin
+            address: |-
+              15E2 Norodom Blvd,
+              Phnom Penh
+            name: SOTELCO Ltd
+          payment_instructions:
+            bank_name: ANZ Royal Bank
+            account_name: Chibi Account Name Beeline
+            account_number: '234567'
+            swift_code: ANZ12345
+            bank_address: |-
+              100 Preah Sihanouk Blvd,
+              Sangkat Boeung Keng Kang 1,
+              Khan Chamkarmorn,
+              Phnom Penh,
+              Cambodia
+          services:
+            sms:
+              name: Chibi SMS Chat
+              short_code: '2442'
+              unit_cost: '0.05'
+              specific_tax: '0.03'
+              vat: '0.1'
+              revenue_share: '0.5'
+              by_day:
+                count:
+                  '1': 82
+                  '2': 74
+                  '3': 74
+                  '4': 90
+                  '5': 86
+                  '6': 62
+                  '7': 66
+                  '8': 80
+                  '9': 83
+                  '10': 72
+                  '11': 50
+                  '12': 69
+                  '13': 74
+                  '14': 57
+                  '15': 59
+                  '16': 52
+                  '17': 67
+                  '18': 42
+                  '19': 43
+                  '20': 55
+                  '21': 87
+                  '22': 48
+                  '23': 40
+                  '24': 69
+                  '25': 63
+                  '26': 46
+                  '27': 64
+                  '28': 88
+                  '29': 76
+                  '30': 88
+                  '31': 60
+              by_month:
+                count:
+                  '8': 2066
+              quantity: 2066
