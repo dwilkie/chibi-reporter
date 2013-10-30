@@ -1,5 +1,6 @@
 require 'axlsx'
 require 'active_support/core_ext/string'
+
 require_relative '../base'
 
 module Report
@@ -38,7 +39,7 @@ module Report
         end
 
         def configure_page
-          current_sheet.column_widths(9.3, 9.3, 9.3, nil, nil, nil, nil, nil, nil)
+          current_sheet.column_widths(14, 7.4, 9.3, 9.3, 9.3, 9.3, 7, 9.3, 9.3)
           current_sheet.page_setup.set(:paper_width => "210mm", :paper_height => "297mm")
           current_sheet.page_margins do |margins|
             margins.left = 0.28
@@ -108,6 +109,10 @@ module Report
 
         def invoice_number
           "1"
+        end
+
+        def vat_rate
+          10
         end
 
         def invoice_date
@@ -213,58 +218,121 @@ module Report
           end
         end
 
-        def service_column(name, options = {}, &block)
-          @service_columns.merge!(
+        def add_service_column(name, options = {}, &block)
+          @service_column_data.merge!(
             name => {
-              :header => options[:header] || name.to_s.titleize.gsub(" ", "\n"),
+              :header => column_header(name, options),
               :value => block_given? ? block : Proc.new {|service_data| service_data[name.to_s]},
               :style => [options[:style]].flatten
             }
           )
         end
 
-        def service_columns
-          return @service_columns if @service_columns
-          @service_columns = {}
-          service_column(:name, :header => "Description")
-          service_column(:short_code)
-          service_column(:quantity, :header => "Qty", :style => :integer)
-          service_column(:unit_cost, :style => :currency)
-          service_column(:amount_including_tax) do
+        def column_header(name, options = {})
+          (options[:header] || name.to_s.titleize).gsub(/\s+/, "\n")
+        end
+
+        def service_column_data
+          return @service_column_data if @service_column_data
+          @service_column_data = {}
+          add_service_column(:name, :header => "Description")
+          add_service_column(:short_code)
+          add_service_column(:quantity, :header => "Qty", :style => :integer)
+          add_service_column(:unit_cost, :style => :currency)
+          add_service_column(:amount_including_tax) do
             "=#{service_cell(:quantity)} * #{service_cell(:unit_cost)}"
           end
-          service_column(:specific_tax, :style => :percentage)
-          service_column(:vat, :style => :percentage)
-          service_column(:amount_excluding_tax) do
+          add_service_column(:specific_tax, :style => :percentage)
+          add_service_column(:vat, :style => :percentage)
+          add_service_column(:amount_excluding_tax) do
             "=#{service_cell(:amount_including_tax)}/(1+#{service_cell(:specific_tax)})/(1+#{service_cell(:vat)})"
           end
-          service_column(:revenue_share) do |service_data|
+          add_service_column(:revenue_share) do |service_data|
             "=#{service_cell(:amount_excluding_tax)}*#{service_data['revenue_share']}"
           end
-          @service_columns
+          @service_column_data
         end
 
-        def service_column_headers
-          service_columns.map { |column, column_data| column_data[:header] }
+        def service_totals
+          @service_totals ||= {
+            :sub_total => {
+              :columns => [
+                {:header => true},
+                {
+                  :value => Proc.new { |metadata|
+                    "=sum(#{service_cell(:amount_excluding_tax, metadata[:start_services_row])}:#{service_cell(:amount_excluding_tax, metadata[:end_services_row])})"
+                  }
+                },
+                {
+                  :value => Proc.new { |metadata|
+                    "=sum(#{service_cell(:revenue_share, metadata[:start_services_row])}:#{service_cell(:revenue_share, metadata[:end_services_row])})"
+                  }
+                }
+              ]
+            },
+            :vat => {
+              :columns => [
+                {:value => "VAT #{vat_rate}%", :header => true},
+                {},
+                {
+                  :value => Proc.new { |metadata|
+                    "=#{service_cell(:revenue_share, metadata[:sub_total_row])}*#{vat_rate}/100"
+                  }
+                }
+              ]
+            },
+            :total => {
+              :columns => [
+                {:header => true},
+                {},
+                {
+                  :value => Proc.new { |metadata|
+                    "=sum(#{service_cell(:revenue_share, metadata[:sub_total_row])}:#{service_cell(:revenue_share, metadata[:vat_row])})"
+                  }
+                }
+              ]
+            }
+          }
         end
 
-        def service_column_values(service_data)
-          service_columns.map { |column, column_data| column_data[:value].call(service_data) }
+        def service_columns(key, service_data = nil)
+          service_column_data.map do |column, column_data|
+            service_data ? column_data[key].call(service_data) : column_data[key]
+          end
         end
 
-        def service_column_styles
-          service_columns.map { |column, column_data| column_data[:style] }
+        def service_cell(key, row = nil)
+           worksheet_column(service_column_data.keys.index(key)) + (row || current_row).to_s
         end
 
-        def service_cell(key)
-          worksheet_column(service_columns.keys.index(key)) + current_row.to_s
+        def service_totals_row_number(key)
+          current_row + service_totals.keys.index(key)
         end
 
         def add_services_table
-          add_row(service_column_headers, :height => 37, :style => style(:bold))
+          add_row(service_columns(:header), :height => 37, :style => style(:bold))
+          start_services_row = current_row
           services.each do |service, service_data|
-            p row_style(*service_column_styles)
-            add_row(service_column_values(service_data), :style => row_style(*service_column_styles))
+            add_row(service_columns(:value, service_data), :style => row_style(*service_columns(:style)))
+          end
+
+          totals_metadata = {
+            :start_services_row => start_services_row,
+            :end_services_row => current_row - 1,
+            :sub_total_row => service_totals_row_number(:sub_total),
+            :vat_row => service_totals_row_number(:vat)
+          }
+
+          service_totals.each do |name, total_row|
+            add_row(
+              total_row[:columns].map do |cell|
+                if cell[:header]
+                  column_header(name, :header => cell[:value])
+                else
+                  cell[:value].call(totals_metadata) if cell[:value]
+                end
+              end
+            )
           end
         end
 
