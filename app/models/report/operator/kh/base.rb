@@ -54,6 +54,7 @@ module Report
           @style_attributes = {}
           @style_attributes[:normal] = {:sz => DEFAULT_FONT_SIZE}
           @style_attributes[:bold] = {:b => true}
+          @style_attributes[:gray] = { :bg_color => "CCCCCCCC" }
           @style_attributes[:date] = {:format_code => "dd/mm/yyyy"}
           @style_attributes[:currency] = {:num_fmt => NUM_FMT_CURRENCY}
           @style_attributes[:percentage] = {:num_fmt => Axlsx::NUM_FMT_PERCENT}
@@ -66,6 +67,7 @@ module Report
           @styles = {}
           add_style
           add_style(:bold)
+          add_style(:bold, :gray)
           add_style(:bold, :date)
           add_style(:currency)
           add_style(:percentage)
@@ -256,39 +258,44 @@ module Report
         def service_totals
           @service_totals ||= {
             :sub_total => {
+              :height => 25,
               :columns => [
                 {:header => true},
                 {
                   :value => Proc.new { |metadata|
                     "=sum(#{service_cell(:amount_excluding_tax, metadata[:start_services_row])}:#{service_cell(:amount_excluding_tax, metadata[:end_services_row])})"
-                  }
+                  },
+                  :position => service_column(:amount_excluding_tax)
                 },
                 {
                   :value => Proc.new { |metadata|
                     "=sum(#{service_cell(:revenue_share, metadata[:start_services_row])}:#{service_cell(:revenue_share, metadata[:end_services_row])})"
-                  }
+                  },
+                  :position => service_column(:revenue_share)
                 }
               ]
             },
             :vat => {
+              :height => 25,
               :columns => [
                 {:value => "VAT #{vat_rate}%", :header => true},
-                {},
                 {
                   :value => Proc.new { |metadata|
                     "=#{service_cell(:revenue_share, metadata[:sub_total_row])}*#{vat_rate}/100"
-                  }
+                  },
+                  :position => service_column(:revenue_share)
                 }
               ]
             },
             :total => {
+              :style => [:bold, :gray],
               :columns => [
                 {:header => true},
-                {},
                 {
                   :value => Proc.new { |metadata|
                     "=sum(#{service_cell(:revenue_share, metadata[:sub_total_row])}:#{service_cell(:revenue_share, metadata[:vat_row])})"
-                  }
+                  },
+                  :position => service_column(:revenue_share),
                 }
               ]
             }
@@ -302,7 +309,15 @@ module Report
         end
 
         def service_cell(key, row = nil)
-           worksheet_column(service_column_data.keys.index(key)) + (row || current_row).to_s
+          worksheet_column(service_column(key)) + (row || current_row).to_s
+        end
+
+        def service_column(key)
+          service_column_data.keys.index(key)
+        end
+
+        def total_service_columns
+          service_column_data.count
         end
 
         def service_totals_row_number(key)
@@ -310,12 +325,15 @@ module Report
         end
 
         def add_services_table
-          add_row(service_columns(:header), :height => 37, :style => style(:bold))
+          add_row(service_columns(:header), :height => 37, :style => style(:bold, :gray))
           start_services_row = current_row
           services.each do |service, service_data|
             add_row(service_columns(:value, service_data), :style => row_style(*service_columns(:style)))
           end
+          add_service_totals(start_services_row)
+        end
 
+        def add_service_totals(start_services_row)
           totals_metadata = {
             :start_services_row => start_services_row,
             :end_services_row => current_row - 1,
@@ -324,15 +342,15 @@ module Report
           }
 
           service_totals.each do |name, total_row|
-            add_row(
-              total_row[:columns].map do |cell|
-                if cell[:header]
-                  column_header(name, :header => cell[:value])
-                else
-                  cell[:value].call(totals_metadata) if cell[:value]
-                end
-              end
-            )
+            row = Array.new(total_service_columns, nil)
+            row_style = total_row.delete(:style)
+            styles = row_style ? Array.new(total_service_columns, row_style) : row.dup
+            columns = total_row.delete(:columns)
+            columns.each_with_index do |cell, index|
+              value = cell[:header] ? column_header(name, :header => cell[:value]) : cell[:value].call(totals_metadata)
+              row[cell[:position] || index] = value
+            end
+            add_row(row, {:style => row_style(*styles)}.merge(total_row))
           end
         end
 

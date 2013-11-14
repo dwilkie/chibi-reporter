@@ -3,7 +3,7 @@ require_relative 'base'
 module Report
   module Operator
     module Kh
-      class Smart < Report::Operator::Kh::Base
+      class Smart < Base
         def generate!
           add_worksheet do
             add_logo
