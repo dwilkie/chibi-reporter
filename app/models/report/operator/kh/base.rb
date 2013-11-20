@@ -51,7 +51,7 @@ module Report
         end
 
         def column_widths
-          @column_widths = [14, 7.4, 9.3, 9.3, 9.3, 9.3, 7, 9.3, 9.3]
+          @column_widths ||= [14, 7.4, 9.3, 9.3, 9.3, 9.3, 7, 9.3, 9.3]
         end
 
         def configure_page
@@ -61,7 +61,10 @@ module Report
             margins.left = 0.28
             margins.right = 0.12
             margins.top = 0.28
-            margins.bottom = 0.28
+            margins.bottom = 0.85
+          end
+          current_sheet.header_footer do |header_footer|
+            header_footer.odd_footer = "Chatterbox Dating Mobile | T: +855 (0) 10 830 237 | E: dave@chibitxt.me | http://chibitxt.me\nNo 91, Street 454, Sangkat Toul Tom Pong 2, Khan Chamkamorn, Phnom Penh, Cambodia"
           end
         end
 
