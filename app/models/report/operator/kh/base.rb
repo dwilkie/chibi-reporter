@@ -54,11 +54,13 @@ module Report
           @style_attributes = {}
           @style_attributes[:normal] = {:sz => DEFAULT_FONT_SIZE}
           @style_attributes[:bold] = {:b => true}
-          @style_attributes[:gray] = { :bg_color => "CCCCCCCC" }
+          @style_attributes[:gray] = {:bg_color => "CCCCCCCC"}
           @style_attributes[:date] = {:format_code => "dd/mm/yyyy"}
           @style_attributes[:currency] = {:num_fmt => NUM_FMT_CURRENCY}
           @style_attributes[:percentage] = {:num_fmt => Axlsx::NUM_FMT_PERCENT}
           @style_attributes[:integer] = {:num_fmt => NUM_FMT_INTEGER}
+          @style_attributes[:border] = {:border => Axlsx::STYLE_THIN_BORDER}
+          @style_attributes[:center] = {:alignment => {:horizontal => :center}}
           @style_attributes
         end
 
@@ -69,9 +71,12 @@ module Report
           add_style(:bold)
           add_style(:bold, :gray)
           add_style(:bold, :date)
-          add_style(:currency)
-          add_style(:percentage)
-          add_style(:integer)
+          add_style(:border)
+          add_style(:bold, :gray, :border)
+          add_style(:bold, :gray, :center, :border)
+          add_style(:currency, :border)
+          add_style(:percentage, :border)
+          add_style(:integer, :border)
           @styles
         end
 
@@ -90,7 +95,8 @@ module Report
         end
 
         def row_style(*row_styles)
-          row_styles.map { |row_style| style(row_style) }
+          options = row_styles.extract_options!
+          row_styles.map { |row_style| style(([row_style] + [options[:additional_styles]]).flatten.compact) }
         end
 
         def style_attribute(*styles)
@@ -325,10 +331,10 @@ module Report
         end
 
         def add_services_table
-          add_row(service_columns(:header), :height => 37, :style => style(:bold, :gray))
+          add_table_row(service_columns(:header), :header => true)
           start_services_row = current_row
           services.each do |service, service_data|
-            add_row(service_columns(:value, service_data), :style => row_style(*service_columns(:style)))
+            add_table_row(service_columns(:value, service_data), :styles => service_columns(:style))
           end
           add_service_totals(start_services_row)
         end
@@ -350,8 +356,18 @@ module Report
               value = cell[:header] ? column_header(name, :header => cell[:value]) : cell[:value].call(totals_metadata)
               row[cell[:position] || index] = value
             end
-            add_row(row, {:style => row_style(*styles)}.merge(total_row))
+            add_table_row(row, {:styles => styles}.merge(total_row))
           end
+        end
+
+        def add_table_row(row = [], options = {})
+          styles = options.delete(:styles)
+          default_row_options = options.delete(:header) ? {:height => 37, :style => style(:bold, :gray, :center, *table_styles)} : {:style => row_style(*styles, :additional_styles => table_styles)}
+          add_row(row, default_row_options.merge(options))
+        end
+
+        def table_styles
+          @table_styles ||= [:border]
         end
 
         def add_row(row = [], options = {})
