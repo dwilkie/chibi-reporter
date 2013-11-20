@@ -11,6 +11,9 @@ module Report
         NUM_FMT_CURRENCY = 7
         NUM_FMT_INTEGER = 3
 
+        LARGE_FONT_SIZE = 12
+        HUGE_FONT_SIZE = 32
+
         attr_accessor :data
         attr_accessor :current_sheet
 
@@ -38,12 +41,16 @@ module Report
           end
         end
 
+        def column_widths
+          @column_widths = [14, 7.4, 9.3, 9.3, 9.3, 9.3, 7, 9.3, 9.3]
+        end
+
         def configure_page
-          current_sheet.column_widths(14, 7.4, 9.3, 9.3, 9.3, 9.3, 7, 9.3, 9.3)
+          current_sheet.column_widths(*column_widths)
           current_sheet.page_setup.set(:paper_width => "210mm", :paper_height => "297mm")
           current_sheet.page_margins do |margins|
             margins.left = 0.28
-            margins.right = 0.28
+            margins.right = 0.12
             margins.top = 0.28
             margins.bottom = 0.28
           end
@@ -61,6 +68,10 @@ module Report
           @style_attributes[:integer] = {:num_fmt => NUM_FMT_INTEGER}
           @style_attributes[:border] = {:border => Axlsx::STYLE_THIN_BORDER}
           @style_attributes[:center] = {:alignment => {:horizontal => :center}}
+          @style_attributes[:left] = {:alignment => {:horizontal => :left}}
+          @style_attributes[:large] = {:sz => LARGE_FONT_SIZE}
+          @style_attributes[:italic] = {:i => true}
+          @style_attributes[:huge] = {:sz => HUGE_FONT_SIZE}
           @style_attributes
         end
 
@@ -68,7 +79,9 @@ module Report
           return @styles if @styles
           @styles = {}
           add_style
+          add_style(:left)
           add_style(:bold)
+          add_style(:bold, :left)
           add_style(:bold, :gray)
           add_style(:bold, :date)
           add_style(:border)
@@ -77,6 +90,8 @@ module Report
           add_style(:currency, :border)
           add_style(:percentage, :border)
           add_style(:integer, :border)
+          add_style(:large, :italic, :center)
+          add_style(:huge, :bold, :center)
           @styles
         end
 
@@ -146,10 +161,13 @@ module Report
         end
 
         def add_title
-          current_sheet.merge_cells("A5:I5")
+          add_row
+          merge_current_row
+          add_row(["Invoice"], :style => style(:huge, :bold, :center))
+          add_row
         end
 
-        def report_metadata(attribute, value, options = {})
+        def row_tabulated_datum(attribute, value, options = {})
           attribute_title = "#{attribute.to_s.titleize}:" if attribute
           {:attribute => attribute_title, :value => value, :style => options[:style] || []}
         end
@@ -162,56 +180,51 @@ module Report
           data["services"]
         end
 
-        def report_metadata_rows
-          @report_metadata_rows ||= [
-            # metadata row
+        def business_detail_rows
+          @business_detail_rows ||= [
             {
               :columns => [
-                report_metadata(:to, billing(:name)),
-                report_metadata(:from, business_name)
+                row_tabulated_datum(:to, billing(:name)),
+                row_tabulated_datum(:from, business_name)
               ]
             },
-            # metadata row
             {
               :columns => [
-                report_metadata(:address, billing(:address)),
-                report_metadata(:invoice_no, invoice_number)
+                row_tabulated_datum(:address, billing(:address)),
+                row_tabulated_datum(:invoice_no, invoice_number)
               ],
               :options => {:height => 48}
             },
-            # metadata row
             {
               :columns => [
-                report_metadata(:attn, billing(:attention)),
-                report_metadata(:date, invoice_date, :style => :date)
+                row_tabulated_datum(:attn, billing(:attention)),
+                row_tabulated_datum(:date, invoice_date, :style => :date)
               ]
             },
-            # metadata row
             {
               :columns => [
-                report_metadata(:vat_tin, billing(:vat_tin)),
-                report_metadata(:vat_tin, business_vat_tin)
+                row_tabulated_datum(:vat_tin, billing(:vat_tin)),
+                row_tabulated_datum(:vat_tin, business_vat_tin)
               ]
             },
-            # metadata row
             {
               :columns => [
-                report_metadata(nil, nil),
-                report_metadata(:period, invoice_period)
+                row_tabulated_datum(nil, nil),
+                row_tabulated_datum(:period, invoice_period)
               ]
             }
           ]
         end
 
-        def add_report_metadata
-          report_metadata_rows.each do |report_metadata_row|
+        def add_row_tabulated_data(row_configurations)
+          row_configurations.each do |row_configuration|
             row_styles = []
             metadata_columns = []
-            report_metadata_row[:columns].each_with_index do |report_metadata, index|
-              metadata_columns << report_metadata[:attribute]
-              metadata_columns << report_metadata[:value]
+            row_configuration[:columns].each_with_index do |column_configuration, index|
+              metadata_columns << column_configuration[:attribute]
+              metadata_columns << column_configuration[:value]
               row_styles       << [nil]
-              row_styles       << ([:bold] << report_metadata[:style]).flatten
+              row_styles       << ([:bold] << column_configuration[:style]).flatten
 
               # column separators
               metadata_columns << nil << nil
@@ -221,9 +234,14 @@ module Report
             row_styles.pop until row_styles.last
             add_row(
               metadata_columns,
-              (report_metadata_row[:options] || {}).merge(:style => row_style(*row_styles))
+              (row_configuration[:options] || {}).merge(:style => row_style(*row_styles))
             )
           end
+        end
+
+        def add_business_details
+          add_section_header(:business_details)
+          add_row_tabulated_data(business_detail_rows)
         end
 
         def add_service_column(name, options = {}, &block)
@@ -330,7 +348,8 @@ module Report
           current_row + service_totals.keys.index(key)
         end
 
-        def add_services_table
+        def add_services
+          add_section_header(:services)
           add_table_row(service_columns(:header), :header => true)
           start_services_row = current_row
           services.each do |service, service_data|
@@ -370,10 +389,57 @@ module Report
           @table_styles ||= [:border]
         end
 
+        def payment_instruction_rows
+          @payment_instruction_rows ||= [
+            {
+              :columns => [payment_instruction(:bank_name)]
+            },
+            {
+              :columns => [payment_instruction(:account_name)],
+            },
+            {
+              :columns => [payment_instruction(:account_number, :style => :left)]
+            },
+            {
+              :columns => [payment_instruction(:swift_code)]
+            },
+            {
+              :columns => [payment_instruction(:bank_address)],
+              :options => {:height => 48}
+            }
+          ]
+        end
+
+        def payment_instruction(name, options = {})
+          row_tabulated_datum(name, payment_instructions[name.to_s], options)
+        end
+
+        def payment_instructions
+          data["payment_instructions"]
+        end
+
+        def add_payment_instructions
+          add_section_header(:payment_instructions)
+          add_row_tabulated_data(payment_instruction_rows)
+        end
+
         def add_row(row = [], options = {})
           options[:style] ||= style
           current_sheet.add_row(row, options)
           increment_row!
+        end
+
+        def add_section_header(title)
+          add_row
+          merge_current_row
+          add_row([title.to_s.titleize], :style => style(:large, :italic, :center))
+          add_row([], :height => 7)
+        end
+
+        def merge_current_row
+          current_sheet.merge_cells(
+            worksheet_column(0) + current_row.to_s + ":" + worksheet_column(column_widths.count - 1) + current_row.to_s
+          )
         end
 
         def current_row
