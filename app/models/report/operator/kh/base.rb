@@ -33,12 +33,21 @@ module Report
           @package
         end
 
-        def add_worksheet(&block)
+        def add_invoice(&block)
           workbook.add_worksheet(:name => "invoice") do |sheet|
             self.current_sheet = sheet
             configure_page
-            yield
+            add_invoice_sections
+            yield if block_given?
           end
+        end
+
+        def add_invoice_sections
+          add_logo
+          add_title
+          add_business_details
+          add_services
+          add_payment_instructions
         end
 
         def column_widths
@@ -167,7 +176,7 @@ module Report
           add_row
         end
 
-        def row_tabulated_datum(attribute, value, options = {})
+        def row_tabulated_datum(attribute, value = nil, options = {})
           attribute_title = "#{attribute.to_s.titleize}:" if attribute
           {:attribute => attribute_title, :value => value, :style => options[:style] || []}
         end
@@ -209,7 +218,7 @@ module Report
             },
             {
               :columns => [
-                row_tabulated_datum(nil, nil),
+                row_tabulated_datum(nil),
                 row_tabulated_datum(:period, invoice_period)
               ]
             }
@@ -391,22 +400,11 @@ module Report
 
         def payment_instruction_rows
           @payment_instruction_rows ||= [
-            {
-              :columns => [payment_instruction(:bank_name)]
-            },
-            {
-              :columns => [payment_instruction(:account_name)],
-            },
-            {
-              :columns => [payment_instruction(:account_number, :style => :left)]
-            },
-            {
-              :columns => [payment_instruction(:swift_code)]
-            },
-            {
-              :columns => [payment_instruction(:bank_address)],
-              :options => {:height => 48}
-            }
+            {:columns => [payment_instruction(:bank_name)]},
+            {:columns => [payment_instruction(:account_name)]},
+            {:columns => [payment_instruction(:account_number, :style => :left)]},
+            {:columns => [payment_instruction(:swift_code)]},
+            {:columns => [payment_instruction(:bank_address)], :options => {:height => 48}}
           ]
         end
 
