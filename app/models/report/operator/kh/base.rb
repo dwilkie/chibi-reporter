@@ -64,7 +64,8 @@ module Report
             margins.bottom = 0.85
           end
           current_sheet.header_footer do |header_footer|
-            header_footer.odd_footer = "Chatterbox Dating Mobile | T: +855 (0) 10 830 237 | E: dave@chibitxt.me | http://chibitxt.me\nNo 91, Street 454, Sangkat Toul Tom Pong 2, Khan Chamkamorn, Phnom Penh, Cambodia"
+            # this should be parameterized
+            header_footer.odd_footer = "#{business_name} | T: +855 (0) 10 830 237 | E: dave@chibitxt.me | http://chibitxt.me\nNo 91, Street 454, Sangkat Toul Tom Pong 2, Khan Chamkamorn, Phnom Penh, Cambodia"
           end
         end
 
