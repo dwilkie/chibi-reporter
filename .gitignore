@@ -1,3 +1,4 @@
 .bundle
 tmp
 vendor/ruby
+.env.production
