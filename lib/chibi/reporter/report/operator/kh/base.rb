@@ -67,7 +67,7 @@ module Chibi
               end
               current_sheet.header_footer do |header_footer|
                 # this should be parameterized
-                header_footer.odd_footer = "#{business_name} | T: +855 (0) 10 830 237 | E: dave@chibitxt.me | http://chibitxt.me\nNo 91, Street 454, Sangkat Toul Tom Pong 2, Khan Chamkamorn, Phnom Penh, Cambodia"
+                header_footer.odd_footer = "#{business_name} | T: #{business_phone} | E: #{business_email} | W: #{business_web}\n#{business_address}"
               end
             end
 
@@ -138,27 +138,47 @@ module Chibi
             end
 
             def business_name
-              "Chatterbox Dating Mobile"
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"] || super
             end
 
             def business_vat_tin
-              "107020858"
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_VAT_TIN"] || super
+            end
+
+            def business_email
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_EMAIL"] || super
+            end
+
+            def business_phone
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_PHONE"] || super
+            end
+
+            def business_web
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_WEB"] || super
+            end
+
+            def business_address
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_ADDRESS"] || super
+            end
+
+            def vat_rate
+              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_VAT_RATE"] || super).to_f
+            end
+
+            def specific_tax_rate
+              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"] || super).to_f
             end
 
             def invoice_number
               "1"
             end
 
-            def vat_rate
-              10
+            def invoice_period
+              "01/01/2014 - 31/01/2014"
             end
 
             def invoice_date
               Date::strptime(Date.today.strftime("%d-%m-%Y"), '%d-%m-%Y')
-            end
-
-            def invoice_period
-              "01/01/2014 - 31/01/2014"
             end
 
             def add_blank_rows(count)
@@ -187,10 +207,6 @@ module Chibi
               {:attribute => attribute_title, :value => value, :style => options[:style] || []}
             end
 
-            def billing(key)
-              data["billing"][key.to_s]
-            end
-
             def services
               data["services"]
             end
@@ -199,26 +215,26 @@ module Chibi
               @business_detail_rows ||= [
                 {
                   :columns => [
-                    row_tabulated_datum(:to, billing(:name)),
+                    row_tabulated_datum(:to, billing_name),
                     row_tabulated_datum(:from, business_name)
                   ]
                 },
                 {
                   :columns => [
-                    row_tabulated_datum(:address, billing(:address)),
+                    row_tabulated_datum(:address, billing_address),
                     row_tabulated_datum(:invoice_no, invoice_number)
                   ],
                   :options => {:height => 48}
                 },
                 {
                   :columns => [
-                    row_tabulated_datum(:attn, billing(:attention)),
+                    row_tabulated_datum(:attn, billing_attention),
                     row_tabulated_datum(:date, invoice_date, :style => :date)
                   ]
                 },
                 {
                   :columns => [
-                    row_tabulated_datum(:vat_tin, billing(:vat_tin)),
+                    row_tabulated_datum(:vat_tin, billing_vat_tin),
                     row_tabulated_datum(:vat_tin, business_vat_tin)
                   ]
                 },
@@ -283,13 +299,17 @@ module Chibi
               add_service_column(:amount_including_tax) do
                 "=#{service_cell(:quantity)} * #{service_cell(:unit_cost)}"
               end
-              add_service_column(:specific_tax, :style => :percentage)
-              add_service_column(:vat, :style => :percentage)
+              add_service_column(:specific_tax, :style => :percentage) do |service_data|
+                service_data["specific_tax"] || specific_tax_rate
+              end
+              add_service_column(:vat, :style => :percentage) do |service_data|
+                service_data["vat"] || vat_rate
+              end
               add_service_column(:amount_excluding_tax) do
                 "=#{service_cell(:amount_including_tax)}/(1+#{service_cell(:specific_tax)})/(1+#{service_cell(:vat)})"
               end
               add_service_column(:revenue_share) do |service_data|
-                "=#{service_cell(:amount_excluding_tax)}*#{service_data['revenue_share']}"
+                "=#{service_cell(:amount_excluding_tax)} * #{service_data['revenue_share']}"
               end
               @service_column_data
             end
@@ -317,10 +337,10 @@ module Chibi
                 :vat => {
                   :height => 25,
                   :columns => [
-                    {:value => "VAT #{vat_rate}%", :header => true},
+                    {:value => "VAT #{(vat_rate * 100).to_i}%", :header => true},
                     {
                       :value => Proc.new { |metadata|
-                        "=#{service_cell(:revenue_share, metadata[:sub_total_row])}*#{vat_rate}/100"
+                        "=#{service_cell(:revenue_share, metadata[:sub_total_row])}*#{vat_rate}"
                       },
                       :position => service_column(:revenue_share)
                     }

@@ -9,7 +9,7 @@ module Chibi
         include ChibiReportHelpers
 
         def asserted_uri
-          URI.parse(ENV['REMOTE_REPORT_URL'])
+          URI.parse(ENV['CHIBI_REPORTER_REPORT_REMOTE_URL'])
         end
 
         def expect_remote_request(cassette, options = {}, &block)

@@ -13,6 +13,22 @@ module Chibi
 
             private
 
+            def billing_name
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SMART_BILLING_NAME"]
+            end
+
+            def billing_address
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SMART_BILLING_ADDRESS"]
+            end
+
+            def billing_vat_tin
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SMART_BILLING_VAT_TIN"]
+            end
+
+            def billing_attention
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SMART_BILLING_ATTENTION"]
+            end
+
             def add_invoice_sections
               super
               add_verification

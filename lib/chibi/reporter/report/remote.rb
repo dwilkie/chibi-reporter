@@ -66,7 +66,7 @@ module Chibi
         end
 
         def self.remote_report_url
-          ENV['REMOTE_REPORT_URL']
+          ENV["CHIBI_REPORTER_REPORT_REMOTE_URL"]
         end
 
         def create_remote_report
