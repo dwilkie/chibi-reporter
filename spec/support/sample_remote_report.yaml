@@ -5,17 +5,6 @@ report:
     kh:
       operators:
         smart:
-          payment_instructions:
-            bank_name: Advanced Bank of Asia Limited (ABA)
-            account_name: Chibi Account Name Smart
-            account_number: '000012345'
-            swift_code: ABA11223
-            bank_address: |-
-              148 Preah Sihanouk Blvd,
-              Sangkat Boeung Keng Kang 1,
-              Khan Chamkarmorn,
-              Phnom Penh,
-              Cambodia
           services:
             sms:
               name: iFriendship SMS
@@ -136,17 +125,6 @@ report:
                   '8': 8906
               quantity: 8943
         beeline:
-          payment_instructions:
-            bank_name: ANZ Royal Bank
-            account_name: Chibi Account Name Beeline
-            account_number: '234567'
-            swift_code: ANZ12345
-            bank_address: |-
-              100 Preah Sihanouk Blvd,
-              Sangkat Boeung Keng Kang 1,
-              Khan Chamkarmorn,
-              Phnom Penh,
-              Cambodia
           services:
             sms:
               name: Chibi SMS Chat
