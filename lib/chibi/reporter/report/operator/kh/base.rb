@@ -138,35 +138,39 @@ module Chibi
             end
 
             def business_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"] || super
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"]
             end
 
             def business_vat_tin
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_VAT_TIN"] || super
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_VAT_TIN"]
             end
 
             def business_email
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_EMAIL"] || super
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_EMAIL"]
             end
 
             def business_phone
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_PHONE"] || super
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_PHONE"]
             end
 
             def business_web
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_WEB"] || super
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_WEB"]
             end
 
             def business_address
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_ADDRESS"] || super
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_ADDRESS"]
+            end
+
+            def business_logo_path
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_LOGO_PATH"]
             end
 
             def vat_rate
-              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_VAT_RATE"] || super).to_f
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_VAT_RATE"].to_f
             end
 
             def specific_tax_rate
-              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"] || super).to_f
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"].to_f
             end
 
             def invoice_number
@@ -186,9 +190,7 @@ module Chibi
             end
 
             def add_logo
-              #img = "https://s3.amazonaws.com/chibimp3/chibi_reporter/images/logo_with_tagline.png"
-              img = File.expand_path("logo_with_tagline.png")
-              current_sheet.add_image(:image_src => img) do |image|
+              current_sheet.add_image(:image_src => business_logo_path) do |image|
                 image.width = 160
                 image.height = 100
                 image.start_at(7, 0)
