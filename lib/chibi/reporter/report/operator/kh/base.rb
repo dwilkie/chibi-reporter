@@ -16,12 +16,13 @@ module Chibi
             LARGE_FONT_SIZE = 12
             HUGE_FONT_SIZE = 32
 
-            attr_accessor :month, :year, :data
+            attr_accessor :month, :year, :invoice_number, :data
             attr_accessor :current_sheet
 
             def initialize(options = {})
               self.month = options[:month]
               self.year = options[:year]
+              self.invoice_number = options[:invoice_number]
               self.data = options[:data]
             end
 
@@ -52,6 +53,7 @@ module Chibi
               add_business_details
               add_services
               add_payment_instructions
+              add_verification
             end
 
             def column_widths
@@ -173,10 +175,6 @@ module Chibi
 
             def specific_tax_rate
               (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"] || super).to_f
-            end
-
-            def invoice_number
-              "1"
             end
 
             def invoice_period
@@ -449,6 +447,19 @@ module Chibi
             def add_payment_instructions
               add_section_header(:payment_instructions)
               add_row_tabulated_data(payment_instruction_rows)
+            end
+
+            def add_verification
+              add_section_header(:verification)
+              add_row_tabulated_data(verification_rows)
+            end
+
+            def verification_rows
+              @verification_rows ||= [
+                {:columns => [row_tabulated_datum(:issued_by), row_tabulated_datum(:checked_by), row_tabulated_datum(:approved_by)]},
+                {:columns => [row_tabulated_datum(:name), row_tabulated_datum(:name), row_tabulated_datum(:name)]},
+                {:columns => [row_tabulated_datum(:date), row_tabulated_datum(:date), row_tabulated_datum(:date)]}
+              ]
             end
 
             def add_row(row = [], options = {})

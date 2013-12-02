@@ -5,6 +5,7 @@ gem 'axlsx', :git => "git://github.com/randym/axlsx.git"
 gem 'activesupport', ">= 4.0"
 gem "httparty"
 gem 'rake'
+gem 'aws-sdk'
 
 group :development do
   gem 'foreman'

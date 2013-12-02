@@ -12,6 +12,10 @@ module Chibi
           URI.parse(ENV['CHIBI_REPORTER_REPORT_REMOTE_URL'])
         end
 
+        def asserted_aws_s3_url(bucket, path)
+          "https://#{bucket}.s3.amazonaws.com/#{path}"
+        end
+
         def expect_remote_request(cassette, options = {}, &block)
           options[:erb] = {:url => asserted_uri.to_s}.merge(options[:erb] || {})
           VCR.use_cassette(cassette, options) do
@@ -25,7 +29,13 @@ module Chibi
           def expect_get_remote_report(&block)
             expect_remote_request(
               :get_remote_report,
-              :erb => {:report => sample_remote_report.to_json},
+              :erb => {
+                :report => sample_remote_report.to_json,
+                :aws_s3_metadata_url => asserted_aws_s3_url(
+                  ENV['AWS_S3_BUCKET'],
+                  ENV['AWS_S3_CHIBI_REPORTER_METADATA_FILE']
+                )
+              },
               &block
             )
           end

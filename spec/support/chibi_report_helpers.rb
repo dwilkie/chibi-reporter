@@ -1,4 +1,6 @@
 module ChibiReportHelpers
+  private
+
   def sample_remote_report
     @sample_remote_report ||= YAML.load_file(
       File.join(File.dirname(__FILE__), "./sample_remote_report.yaml")

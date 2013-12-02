@@ -13,10 +13,12 @@ module Chibi
               super(:kh, :smart)
             end
 
-            subject { Smart.new(:data => sample_operator_report, :month => 1, :year => 2014) }
+            subject {
+              Smart.new(:data => sample_operator_report, :month => 1, :year => 2014, :invoice_number => 1)
+            }
 
             describe "#generate!" do
-              it "should do something" do
+              it "should create an invoice for Smart" do
                 subject.generate!
                 File.should exist("smart.xlsx")
               end
