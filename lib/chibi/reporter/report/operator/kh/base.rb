@@ -138,39 +138,39 @@ module Chibi
             end
 
             def business_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"] || super
             end
 
             def business_vat_tin
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_VAT_TIN"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_VAT_TIN"] || super
             end
 
             def business_email
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_EMAIL"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_EMAIL"] || super
             end
 
             def business_phone
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_PHONE"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_PHONE"] || super
             end
 
             def business_web
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_WEB"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_WEB"] || super
             end
 
             def business_address
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_ADDRESS"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_ADDRESS"] || super
             end
 
             def business_logo_path
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_LOGO_PATH"]
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_LOGO_PATH"] || super
             end
 
             def vat_rate
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_VAT_RATE"].to_f
+              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_VAT_RATE"] || super).to_f
             end
 
             def specific_tax_rate
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"].to_f
+              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"] || super).to_f
             end
 
             def invoice_number
