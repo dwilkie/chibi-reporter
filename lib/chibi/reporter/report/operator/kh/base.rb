@@ -57,7 +57,7 @@ module Chibi
             end
 
             def column_widths
-              @column_widths ||= [14, 7.4, 9.3, 9.3, 9.3, 9.3, 7, 9.3, 9.3]
+              @column_widths ||= [14, 9, 7.4, 7.4, 14, 9.3, 4, 9, 9]
             end
 
             def configure_page
@@ -102,7 +102,7 @@ module Chibi
               add_style(:bold)
               add_style(:bold, :left)
               add_style(:bold, :gray)
-              add_style(:bold, :date)
+              add_style(:bold, :left, :date)
               add_style(:border)
               add_style(:bold, :gray, :border)
               add_style(:bold, :gray, :center, :border)
@@ -141,6 +141,8 @@ module Chibi
               style_attribute
             end
 
+            # business specific details
+
             def business_name
               ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"] || super
             end
@@ -167,6 +169,28 @@ module Chibi
 
             def business_logo_path
               ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_LOGO_PATH"] || super
+            end
+
+            # billing details
+
+            def bank_name
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_NAME"] || super
+            end
+
+            def bank_account_name
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_ACCOUNT_NAME"] || super
+            end
+
+            def bank_account_number
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_ACCOUNT_NUMBER"] || super
+            end
+
+            def bank_swift_code
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_SWIFT_CODE"] || super
+            end
+
+            def bank_address
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_ADDRESS"] || super
             end
 
             def vat_rate
@@ -257,7 +281,7 @@ module Chibi
                   metadata_columns << column_configuration[:attribute]
                   metadata_columns << column_configuration[:value]
                   row_styles       << [nil]
-                  row_styles       << ([:bold] << column_configuration[:style]).flatten
+                  row_styles       << ([:bold, :left] << column_configuration[:style]).flatten
 
                   # column separators
                   metadata_columns << nil << nil
@@ -428,20 +452,12 @@ module Chibi
 
             def payment_instruction_rows
               @payment_instruction_rows ||= [
-                {:columns => [payment_instruction(:bank_name)]},
-                {:columns => [payment_instruction(:account_name)]},
-                {:columns => [payment_instruction(:account_number, :style => :left)]},
-                {:columns => [payment_instruction(:swift_code)]},
-                {:columns => [payment_instruction(:bank_address)], :options => {:height => 48}}
+                {:columns => [row_tabulated_datum(:bank_name, bank_name)]},
+                {:columns => [row_tabulated_datum(:account_name, bank_account_name)]},
+                {:columns => [row_tabulated_datum(:account_number, bank_account_number)]},
+                {:columns => [row_tabulated_datum(:swift_code, bank_swift_code)]},
+                {:columns => [row_tabulated_datum(:bank_address, bank_address)], :options => {:height => 48}}
               ]
-            end
-
-            def payment_instruction(name, options = {})
-              row_tabulated_datum(name, payment_instructions[name.to_s], options)
-            end
-
-            def payment_instructions
-              data["payment_instructions"]
             end
 
             def add_payment_instructions
