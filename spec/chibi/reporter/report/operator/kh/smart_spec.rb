@@ -13,7 +13,7 @@ module Chibi
               super(:kh, :smart)
             end
 
-            subject { Smart.new(:data => sample_operator_report) }
+            subject { Smart.new(:data => sample_operator_report, :month => 1, :year => 2014) }
 
             describe "#generate!" do
               it "should do something" do

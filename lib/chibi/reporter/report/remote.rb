@@ -27,9 +27,11 @@ module Chibi
           remote_report = get_remote_report
           return unless remote_report
           report_data = remote_report["report"]
+          month = report_data["month"]
+          year = report_data["year"]
           report_data["countries"].each do |country_code, country_data|
             country_data["operators"].each do |operator, operator_data|
-              if operator_report = operator_report(country_code, operator, operator_data)
+              if operator_report = operator_report(month, year, country_code, operator, operator_data)
                 operator_report.generate!
               end
             end
@@ -38,10 +40,14 @@ module Chibi
 
         private
 
-        def self.operator_report(country_code, operator, operator_data)
+        def self.operator_report(month, year, country_code, operator, operator_data)
           operator_report_path = "operator/#{country_code}/#{operator}"
           if File.exists?(File.expand_path("./#{operator_report_path}.rb", File.dirname(__FILE__)))
-            "chibi/reporter/report/#{operator_report_path}".classify.constantize.new(:data => operator_data)
+            "chibi/reporter/report/#{operator_report_path}".classify.constantize.new(
+              :data => operator_data,
+              :month => month,
+              :year => year
+            )
           end
         end
         private_class_method :operator_report

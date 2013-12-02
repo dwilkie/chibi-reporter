@@ -16,10 +16,12 @@ module Chibi
             LARGE_FONT_SIZE = 12
             HUGE_FONT_SIZE = 32
 
-            attr_accessor :data
+            attr_accessor :month, :year, :data
             attr_accessor :current_sheet
 
             def initialize(options = {})
+              self.month = options[:month]
+              self.year = options[:year]
               self.data = options[:data]
             end
 
@@ -178,7 +180,7 @@ module Chibi
             end
 
             def invoice_period
-              "01/01/2014 - 31/01/2014"
+              Time.new(year, month).strftime("%B %Y")
             end
 
             def invoice_date
