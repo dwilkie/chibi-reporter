@@ -7,7 +7,7 @@ module Chibi
         module Kh
           class Smart < Base
             def generate!
-              add_invoice
+              super
               package.serialize("smart.xlsx")
             end
 

@@ -7,7 +7,7 @@ module Chibi
         module Kh
           class Beeline < Base
             def generate!
-              add_invoice
+              super
               package.serialize("beeline.xlsx")
             end
 

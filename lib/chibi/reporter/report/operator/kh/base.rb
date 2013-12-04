@@ -26,6 +26,11 @@ module Chibi
               self.data = options[:data]
             end
 
+            def generate!
+              add_invoice
+              add_service_details
+            end
+
             private
 
             def workbook
@@ -45,6 +50,60 @@ module Chibi
                 add_invoice_sections
                 yield if block_given?
               end
+            end
+
+            def add_service_details
+              services.each do |service, service_metadata|
+                workbook.add_worksheet(:name => service_metadata["name"]) do |sheet|
+                  self.current_sheet = sheet
+                  headers = service_metadata["headers"]
+                  add_row(headers)
+
+                  service_metadata["data"].each do |data_row|
+                    add_row(
+                      service_details_data_row(data_row, headers),
+                      :widths => service_details_row_widths(headers),
+                      :style => service_details_row_style(headers)
+                    )
+                  end
+                end
+              end
+            end
+
+            def service_details_data_row(service_data_row, headers)
+              data_row = service_data_row.dup
+              data_row.each_with_index do |data_cell, index|
+                if timestamp_column?(headers, index)
+                  time = Time.parse(data_cell)
+                  spreadsheet_time = Time.at(time.to_f + time.utc_offset)
+                  data_row[index] = spreadsheet_time
+                end
+              end
+              data_row
+            end
+
+            def service_details_row_widths(headers)
+              return nil if headers.empty?
+              row_widths = Array.new(headers.count, :auto)
+              row_widths.each_with_index do |row_width, index|
+                row_widths[index] = 20 if timestamp_column?(headers, index)
+              end
+              row_widths
+            end
+
+            def service_details_row_style(headers)
+              return nil if headers.empty?
+
+              row_styles = Array.new(headers.count, nil)
+              row_styles.each_with_index do |row_style, index|
+                row_styles[index] = :date_time if timestamp_column?(headers, index)
+              end
+
+              row_style(*row_styles)
+            end
+
+            def timestamp_column?(headers, index)
+              headers[index] == "timestamp"
             end
 
             def add_invoice_sections
@@ -70,7 +129,6 @@ module Chibi
                 margins.bottom = 0.85
               end
               current_sheet.header_footer do |header_footer|
-                # this should be parameterized
                 header_footer.odd_footer = "#{business_name} | T: #{business_phone} | E: #{business_email} | W: #{business_web}\n#{business_address}"
               end
             end
@@ -81,6 +139,7 @@ module Chibi
               @style_attributes[:normal] = {:sz => DEFAULT_FONT_SIZE}
               @style_attributes[:bold] = {:b => true}
               @style_attributes[:gray] = {:bg_color => "CCCCCCCC"}
+              @style_attributes[:date_time] = { :format_code => "dd/mm/yyyy hh:mm:ss" }
               @style_attributes[:date] = {:format_code => "dd/mm/yyyy"}
               @style_attributes[:currency] = {:num_fmt => NUM_FMT_CURRENCY}
               @style_attributes[:percentage] = {:num_fmt => Axlsx::NUM_FMT_PERCENT}
@@ -100,6 +159,7 @@ module Chibi
               add_style
               add_style(:left)
               add_style(:bold)
+              add_style(:date_time)
               add_style(:bold, :left)
               add_style(:bold, :gray)
               add_style(:bold, :left, :date)
