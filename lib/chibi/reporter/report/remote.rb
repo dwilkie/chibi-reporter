@@ -1,6 +1,7 @@
 require 'httparty'
 require 'uri'
 require 'aws-sdk'
+require 'google/api_client'
 require 'active_support/core_ext/integer'
 require 'active_support/core_ext/date'
 require 'json'
@@ -39,6 +40,12 @@ module Chibi
                 month, year, invoice_number, country_code, operator, operator_data
               )
                 operator_report.generate!
+                upload_to_google_drive(operator_report)
+
+                # upload_report_to_s3
+                # upload report to google drive
+                # email the report to relevant parties if applicable
+                #package.serialize("#{name}_#{business_name.gsub(/\s+/, '_').downcase}_invoice_report_#{invoice_period.gsub(/\s+/, '_').downcase}.xlsx")
                 invoice_number += 1
               end
             end
@@ -47,6 +54,90 @@ module Chibi
         end
 
         private
+
+        def self.upload_to_s3(operator_report)
+
+        end
+
+        def self.upload_to_google_drive(operator_report)
+          upload_file_to_drive(
+            operator_report.io_stream,
+            :title => operator_report.filename,
+            :mime_type => operator_report.mime_type,
+            :parent_directory => parent_drive_directory(operator_report)
+          )
+        end
+
+        def self.parent_drive_directory(operator_report)
+          find_or_create_drive_directory(
+            operator_report.month_directory,
+            find_or_create_drive_directory(
+              operator_report.year_directory, operator_report.google_drive_parent_directory_id
+            )
+          )
+        end
+
+        def self.find_or_create_drive_directory(title, parent_id)
+          (
+            JSON.parse(
+              google_drive_client.execute(
+                :api_method => google_drive.files.list,
+                :parameters => {
+                  :q => "mimeType='#{drive_directory_mime_type}' AND trashed=false AND title='#{title}' AND '#{parent_id}' in parents"
+                }
+              ).body
+            )["items"].first || {}
+          )["id"] || JSON.parse(
+            google_drive_client.execute(
+              :api_method => google_drive.files.insert,
+              :body_object => google_drive.files.insert.request_schema.new(
+                "title" => title,
+                "mimeType" => drive_directory_mime_type,
+                "parents" => ["id" => parent_id]
+              )
+            ).body
+          )["id"]
+        end
+
+        def self.drive_directory_mime_type
+          'application/vnd.google-apps.folder'
+        end
+
+        def self.upload_file_to_drive(file, options = {})
+          google_drive_client.execute(
+            :api_method => google_drive.files.insert,
+            :body_object => google_drive.files.insert.request_schema.new(
+              'title' => options[:title],
+              'mimeType' => options[:mime_type],
+              'parents' => ["id" => options[:parent_directory]]
+            ),
+            :media => Google::APIClient::UploadIO.new(file, options[:mime_type]),
+            :parameters => {
+              'uploadType' => 'multipart',
+              'alt' => 'json'
+            }
+          )
+        end
+
+        def self.google_drive_client
+          return @google_drive_client if @google_drive_client
+          @google_drive_client = Google::APIClient.new
+          @google_drive_client.authorization.client_id = ENV["GOOGLE_DRIVE_UPLOADER_CLIENT_ID"]
+          @google_drive_client.authorization.client_secret = ENV["GOOGLE_DRIVE_UPLOADER_CLIENT_SECRET"]
+          @google_drive_client.authorization.scope = ENV["GOOGLE_DRIVE_UPLOADER_OAUTH_SCOPE"]
+          @google_drive_client.authorization.refresh_token = ENV["GOOGLE_DRIVE_UPLOADER_REFRESH_TOKEN"]
+          @google_drive_client.authorization.grant_type = ENV["GOOGLE_DRIVE_UPLOADER_GRANT_TYPE"]
+          @google_drive_client.authorization.fetch_access_token!
+          @google_drive_client
+        end
+
+        def self.google_drive
+          return @google_drive if @google_drive
+          google_drive_client.register_discovery_document(
+            'drive', 'v2', File.read(ENV["GOOGLE_API_DISCOVERY_DOCUMENT_PATH"])
+          )
+          @google_drive ||= google_drive_client.discovered_api('drive', 'v2')
+        end
 
         def self.remote_url_auth
           basic_auth = {}

@@ -12,10 +12,6 @@ module Chibi
           URI.parse(ENV['CHIBI_REPORTER_REPORT_REMOTE_URL'])
         end
 
-        def asserted_aws_s3_url(bucket, path)
-          "https://#{bucket}.s3.amazonaws.com/#{path}"
-        end
-
         def expect_remote_request(cassette, options = {}, &block)
           options[:erb] = {:url => asserted_uri.to_s}.merge(options[:erb] || {})
           VCR.use_cassette(cassette, options) do
@@ -26,6 +22,60 @@ module Chibi
         describe ".process!", :focus do
           subject { Remote }
 
+          def asserted_aws_s3_url(bucket, path)
+            "https://#{bucket}.s3.amazonaws.com/#{path}"
+          end
+
+          def google_drive_upload_urls
+            google_drive_urls = []
+            asserted_operators.each do |country_code, operators|
+              operators.each do |operator_id|
+                parent_directory = asserted_google_drive_parent_directory(country_code, operator_id)
+                get_year_directory_url = google_drive_find_directory_url(
+                  parent_directory, asserted_year_directory
+                )
+                get_month_directory_url = google_drive_find_directory_url(
+                  parent_directory, asserted_month_directory
+                )
+                post_upload_url = "https://www.googleapis.com/upload/drive/v2/files?alt=json&uploadType=multipart"
+                google_drive_urls << {
+                  :url => get_year_directory_url, :method => "get", :parent_directory => parent_directory
+                }
+                google_drive_urls << {
+                  :url => get_month_directory_url, :method => "get", :parent_directory => parent_directory
+                }
+                google_drive_urls << {
+                  :url => post_upload_url, :method => "post"
+                }
+              end
+            end
+            google_drive_urls
+          end
+
+          def google_drive_find_directory_url(parent_directory, title)
+            "https://www.googleapis.com/drive/v2/files?q=mimeType='#{asserted_google_docs_folder_mime_type}'%20AND%20trashed=false%20AND%20title='#{title}'%20AND%20'#{parent_directory}'%20in%20parents"
+          end
+
+          def asserted_google_drive_parent_directory(country_code, operator_id)
+            ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_#{operator_id.to_s.upcase}_GOOGLE_DRIVE_PARENT_DIRECTORY_ID"]
+          end
+
+          def asserted_google_docs_folder_mime_type
+            "application/vnd.google-apps.folder"
+          end
+
+          def asserted_year_directory
+            sample_remote_report["report"]["year"]
+          end
+
+          def asserted_month_directory
+            Time.new(asserted_year_directory, sample_remote_report["report"]["month"]).strftime("%m_%B").downcase
+          end
+
+          def google_drive_oauth_url
+            "https://accounts.google.com/o/oauth2/token"
+          end
+
           def expect_get_remote_report(&block)
             expect_remote_request(
               :get_remote_report,
@@ -34,7 +84,9 @@ module Chibi
                 :aws_s3_metadata_url => asserted_aws_s3_url(
                   ENV['AWS_S3_BUCKET'],
                   ENV['AWS_S3_CHIBI_REPORTER_METADATA_FILE']
-                )
+                ),
+                :google_drive_oauth_url => google_drive_oauth_url,
+                :google_drive_upload_urls => google_drive_upload_urls
               },
               &block
             )
