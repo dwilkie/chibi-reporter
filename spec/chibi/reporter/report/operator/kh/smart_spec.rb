@@ -6,23 +6,13 @@ module Chibi
     module Report
       module Operator
         module Kh
-          describe Smart, :focus do
-            include ChibiReportHelpers
+          describe Smart do
+            include ChibiReportHelpers::Kh
 
-            def sample_operator_report
-              super(:kh, :smart)
-            end
+            let(:operator_id) { :smart }
+            let(:operator_class) { Smart }
 
-            subject {
-              Smart.new(:data => sample_operator_report, :month => 1, :year => 2014, :invoice_number => 1)
-            }
-
-            describe "#generate!" do
-              it "should create an invoice for Smart" do
-                subject.generate!
-                File.should exist("smart.xlsx")
-              end
-            end
+            it_should_behave_like "an operator report"
           end
         end
       end

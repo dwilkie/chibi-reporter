@@ -16,10 +16,11 @@ module Chibi
             LARGE_FONT_SIZE = 12
             HUGE_FONT_SIZE = 32
 
-            attr_accessor :month, :year, :invoice_number, :data
+            attr_accessor :name, :month, :year, :invoice_number, :data, :io_stream
             attr_accessor :current_sheet
 
             def initialize(options = {})
+              self.name = options[:name]
               self.month = options[:month]
               self.year = options[:year]
               self.invoice_number = options[:invoice_number]
@@ -29,9 +30,39 @@ module Chibi
             def generate!
               add_invoice
               add_service_details
+              self.io_stream = package.to_stream
+            end
+
+            def filename
+              text = []
+              text << name
+              text << business_name
+              text << "invoice_and_report"
+              text << invoice_period
+              sanitize(text.join("_")) << ".xlsx"
+            end
+
+            def mime_type
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            end
+
+            def year_directory
+              year
+            end
+
+            def month_directory
+              invoice_month.strftime("%m_%B").downcase
+            end
+
+            def google_drive_parent_directory_id
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{name.upcase}_GOOGLE_DRIVE_PARENT_DIRECTORY_ID"]
             end
 
             private
+
+            def sanitize(text)
+              text.gsub(/\s+/, '_').downcase
+            end
 
             def workbook
               @workbook ||= package.workbook
@@ -233,6 +264,22 @@ module Chibi
 
             # billing details
 
+            def billing_name
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_NAME"]
+            end
+
+            def billing_address
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_ADDRESS"]
+            end
+
+            def billing_vat_tin
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_VAT_TIN"]
+            end
+
+            def billing_attention
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_ATTENTION"]
+            end
+
             def bank_name
               ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_NAME"] || super
             end
@@ -262,12 +309,18 @@ module Chibi
             end
 
             def invoice_period
-              Time.new(year, month).strftime("%B %Y")
+              invoice_month.strftime("%B %Y")
+            end
+
+            def invoice_month
+              Time.new(year, month)
             end
 
             def invoice_date
               Date::strptime(Date.today.strftime("%d-%m-%Y"), '%d-%m-%Y')
             end
+
+            # google drive
 
             def add_blank_rows(count)
               count.times { add_row }

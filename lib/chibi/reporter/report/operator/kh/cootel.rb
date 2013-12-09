@@ -5,9 +5,9 @@ module Chibi
     module Report
       module Operator
         module Kh
-          class Smart < Base
+          class Cootel < Base
             def initialize(options = {})
-              super(options.merge(:name => "smart"))
+              super(options.merge(:name => "cootel"))
             end
           end
         end
