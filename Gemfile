@@ -6,7 +6,7 @@ gem 'activesupport', ">= 4.0"
 gem "httparty"
 gem 'rake'
 gem 'aws-sdk'
-gem 'google_drive'
+gem 'google-api-client'
 
 group :development do
   gem 'foreman'
