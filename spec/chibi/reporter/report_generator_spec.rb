@@ -45,10 +45,8 @@ module Chibi
         end
 
         context "given the remote report is available" do
-          it "should get the remote report" do
-            expect_report_generator_run! do
-              subject.run!
-            end
+          it "should generate and distribute operator reports" do
+            expect_report_generator_run! { subject.run! }
           end
         end
       end

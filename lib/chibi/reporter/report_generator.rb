@@ -9,37 +9,45 @@ module Chibi
 
       LAST_INVOICE_NUMBER_KEY = "last_invoice_number"
 
-      attr_accessor :month, :year, :invoice_number, :report_data
+      attr_accessor :invoice_number
 
       def run!
         return unless remote_report
-        self.report_data = remote_report["report"]
-        self.month = report_data["month"]
-        self.year = report_data["year"]
-        self.invoice_number = metadata[LAST_INVOICE_NUMBER_KEY].to_i
-        report_data["countries"].each do |country_code, country_data|
-          country_data["operators"].each do |operator, operator_data|
-            if operator_report = operator_report(country_code, operator, operator_data)
-              operator_report.generate!
-              google_drive_client.upload(
-                operator_report.io_stream,
-                :filename => operator_report.suggested_filename,
-                :mime_type => operator_report.mime_type,
-                :root_directory => operator_report.google_drive_root_directory_id
-              )
 
-              # upload_report_to_s3
-              # upload report to google drive
-              # email the report to relevant parties if applicable
-              #package.serialize("#{name}_#{business_name.gsub(/\s+/, '_').downcase}_invoice_report_#{invoice_period.gsub(/\s+/, '_').downcase}.xlsx")
-              self.invoice_number += 1
-            end
-          end
+        self.invoice_number = metadata[LAST_INVOICE_NUMBER_KEY].to_i
+        with_operator_reports do |operator_report|
+          operator_report.generate!
+          distribute(operator_report)
+          self.invoice_number += 1
         end
+
         write_invoice_number if increment_invoice_number?
       end
 
       private
+
+      def distribute(operator_report)
+        upload_to_google_drive(operator_report)
+      end
+
+      def upload_to_google_drive(operator_report)
+        google_drive_client.upload(
+          operator_report.io_stream,
+          :filename => operator_report.suggested_filename,
+          :mime_type => operator_report.mime_type,
+          :root_directory => operator_report.google_drive_root_directory_id
+        )
+      end
+
+      def with_operator_reports(&block)
+        report_data["countries"].each do |country_code, country_data|
+          country_data["operators"].each do |operator, operator_data|
+            if operator_report = operator_report(country_code, operator, operator_data)
+              yield operator_report
+            end
+          end
+        end
+      end
 
       def operator_report(country_code, operator, operator_data)
         operator_report_path = "operator/#{country_code}/#{operator}"
@@ -51,6 +59,18 @@ module Chibi
             :invoice_number => invoice_number + 1
           )
         end
+      end
+
+      def report_data
+        remote_report["report"]
+      end
+
+      def month
+        report_data["month"]
+      end
+
+      def year
+        report_data["year"]
       end
 
       def metadata
