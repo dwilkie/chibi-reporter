@@ -7,7 +7,7 @@ module Chibi
       module Operator
         module Kh
           describe Cootel do
-            include ChibiReportHelpers::Kh
+            include ChibiReporterSpecHelpers::Report::Operator::Kh
 
             let(:operator_id) { :cootel }
             let(:operator_class) { Cootel }

@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <%= chibi_client_remote_report_url %>
+    body:
+      encoding: UTF-8
+      string: report[month]=8&report[year]=2013
+    headers: {}
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Date:
+      - Tue, 10 Sep 2013 13:19:23 GMT
+      Status:
+      - 201 Created
+      Connection:
+      - close
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Ua-Compatible:
+      - chrome=1
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"7215ee9c7d9dc229d2921a40e899ec5f"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 1c78cf56-6497-4806-a70a-9b73596ca6a4
+      X-Runtime:
+      - '0.005971'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: ' '
+    http_version:
+  recorded_at: Tue, 10 Sep 2013 13:19:23 GMT
+recorded_with: VCR 2.5.0

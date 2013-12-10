@@ -7,7 +7,7 @@ module Chibi
       module Operator
         module Kh
           describe Beeline do
-            include ChibiReportHelpers::Kh
+            include ChibiReporterSpecHelpers::Report::Operator::Kh
 
             let(:operator_id) { :beeline }
             let(:operator_class) { Beeline }

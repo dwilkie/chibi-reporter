@@ -7,7 +7,7 @@ module Chibi
       module Operator
         module Kh
           describe Qb do
-            include ChibiReportHelpers::Kh
+            include ChibiReporterSpecHelpers::Report::Operator::Kh
 
             let(:operator_id) { :qb }
             let(:operator_class) { Qb }

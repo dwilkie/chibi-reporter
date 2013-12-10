@@ -33,32 +33,28 @@ module Chibi
               self.io_stream = package.to_stream
             end
 
+            def mime_type
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            end
+
+            def suggested_filename
+              sanitize(File.join(year.to_s, invoice_month.strftime("%m_%B"), filename))
+            end
+
+            def google_drive_root_directory_id
+              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{name.upcase}_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
+            end
+
+            private
+
             def filename
               text = []
               text << name
               text << business_name
               text << "invoice_and_report"
               text << invoice_period
-              sanitize(text.join("_")) << ".xlsx"
+              text.join("_") << ".xlsx"
             end
-
-            def mime_type
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            end
-
-            def year_directory
-              year
-            end
-
-            def month_directory
-              invoice_month.strftime("%m_%B").downcase
-            end
-
-            def google_drive_parent_directory_id
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{name.upcase}_GOOGLE_DRIVE_PARENT_DIRECTORY_ID"]
-            end
-
-            private
 
             def sanitize(text)
               text.gsub(/\s+/, '_').downcase

@@ -7,7 +7,7 @@ module Chibi
       module Operator
         module Kh
           describe Smart do
-            include ChibiReportHelpers::Kh
+            include ChibiReporterSpecHelpers::Report::Operator::Kh
 
             let(:operator_id) { :smart }
             let(:operator_class) { Smart }
