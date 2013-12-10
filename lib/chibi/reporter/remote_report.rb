@@ -6,17 +6,10 @@ module Chibi
       require 'active_support/core_ext/integer'
       require 'active_support/core_ext/date'
 
-      attr_accessor :month, :year
-
-      def initialize(options = {})
-        self.month = options[:month] || time_last_month.month
-        self.year = options[:year] || time_last_month.year
-      end
-
-      def generate!
+      def generate!(month = nil, year = nil)
         # asks for a new remote report to generated
         # this also clears any old reports on the server
-        chibi_client.create_remote_report(month, year)
+        chibi_client.create_remote_report(month || time_last_month.month, year || time_last_month.year)
       end
 
       private
@@ -26,7 +19,7 @@ module Chibi
       end
 
       def time_last_month
-        @time_last_month ||= (Time.current - 1.month)
+        @time_last_month ||= 1.month.ago
       end
     end
   end

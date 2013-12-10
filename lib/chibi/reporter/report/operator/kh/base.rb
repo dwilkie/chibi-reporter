@@ -1,6 +1,3 @@
-require 'axlsx'
-require 'active_support/core_ext/string'
-
 require_relative '../base'
 
 module Chibi
@@ -9,6 +6,9 @@ module Chibi
       module Operator
         module Kh
           class Base < Operator::Base
+            require 'axlsx'
+            require 'active_support/core_ext/string'
+
             DEFAULT_FONT_SIZE = 10
             NUM_FMT_CURRENCY = 7
             NUM_FMT_INTEGER = 3
@@ -40,11 +40,11 @@ module Chibi
               sanitize(File.join(year.to_s, invoice_month.strftime("%m_%B"), filename))
             end
 
+            private
+
             def self.enabled?(flag)
               flag.to_i == 1
             end
-
-            private
 
             def aws_s3_root_directory(*parts)
               super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_AWS_S3_ROOT_DIRECTORY"], *parts)
