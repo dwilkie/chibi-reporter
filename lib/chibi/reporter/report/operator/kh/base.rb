@@ -16,11 +16,10 @@ module Chibi
             LARGE_FONT_SIZE = 12
             HUGE_FONT_SIZE = 32
 
-            attr_accessor :name, :month, :year, :invoice_number, :data, :io_stream
+            attr_accessor :month, :year, :invoice_number, :data, :io_stream
             attr_accessor :current_sheet
 
             def initialize(options = {})
-              self.name = options[:name]
               self.month = options[:month]
               self.year = options[:year]
               self.invoice_number = options[:invoice_number]
@@ -41,15 +40,15 @@ module Chibi
               sanitize(File.join(year.to_s, invoice_month.strftime("%m_%B"), filename))
             end
 
-            def google_drive_root_directory_id
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{name.upcase}_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
+            def self.enabled?(flag)
+              flag.to_i == 1
             end
 
             private
 
             def filename
               text = []
-              text << name
+              text << human_name
               text << business_name
               text << "invoice_and_report"
               text << invoice_period
@@ -259,22 +258,6 @@ module Chibi
             end
 
             # billing details
-
-            def billing_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_NAME"]
-            end
-
-            def billing_address
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_ADDRESS"]
-            end
-
-            def billing_vat_tin
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_VAT_TIN"]
-            end
-
-            def billing_attention
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{name.upcase}_BILLING_ATTENTION"]
-            end
 
             def bank_name
               ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_NAME"] || super

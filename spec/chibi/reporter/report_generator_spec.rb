@@ -34,10 +34,14 @@ module Chibi
       end
 
       describe "#run!" do
+        let(:last_invoice_number) { 40 }
         def expect_report_generator_run!(&block)
           expect_chibi_client_get_remote_report(
             :report_generator_run,
-            :erb => {:aws_s3_metadata_url => aws_s3_metadata_url}.merge(
+            :erb => {
+              :aws_s3_metadata_url => aws_s3_metadata_url,
+              :metadata => {:last_invoice_number => last_invoice_number}
+            }.merge(
               google_drive_upload_erb(:files => expected_files)
             ),
             &block
@@ -47,6 +51,8 @@ module Chibi
         context "given the remote report is available" do
           it "should generate and distribute operator reports" do
             expect_report_generator_run! { subject.run! }
+            num_operator_reports = asserted_operators.inject(0) {|total, (k, v)| total + v.size}
+            subject.invoice_number.should == num_operator_reports + last_invoice_number
           end
         end
       end

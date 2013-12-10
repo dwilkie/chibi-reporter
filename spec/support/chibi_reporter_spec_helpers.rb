@@ -15,8 +15,25 @@ module ChibiReporterSpecHelpers
     VCR.use_cassette(cassette, options) { yield }
   end
 
-  def asserted_operators
+  def all_operators
     {:kh => [:smart, :beeline, :qb, :cootel]}
+  end
+
+  def operator_enabled?(country_code, operator_id)
+    ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_#{operator_id.to_s.upcase}_ENABLED"].to_i == 1
+  end
+
+  def asserted_operators
+    return @asserted_operators if @asserted_operators
+    @asserted_operators = {}
+    all_operators.each do |country_code, operator_ids|
+      @asserted_operators[country_code] = []
+      operator_ids.each do |operator_id|
+        @asserted_operators[country_code] << operator_id if operator_enabled?(country_code, operator_id)
+      end
+    end
+
+    @asserted_operators
   end
 
   module ChibiClient
@@ -132,8 +149,8 @@ module ChibiReporterSpecHelpers
         end
 
         describe "#suggested_filename" do
-          it "should return a filename and path which includes the operator id, business name and report period" do
-            subject.suggested_filename.should == "2014/01_january/#{operator_id}_#{business_name}_invoice_and_report_january_2014.#{file_extension}"
+          it "should return a filename and path which includes the operator's name, our business name and report period" do
+            subject.suggested_filename.should == "2014/01_january/#{operator_human_name}_#{business_name}_invoice_and_report_january_2014.#{file_extension}"
           end
         end
 
@@ -148,6 +165,12 @@ module ChibiReporterSpecHelpers
             subject.google_drive_root_directory_id.should == google_drive_root_directory_id
           end
         end
+
+        describe ".enabled?" do
+          it "should return whether or not this report is enabled" do
+            subject.class.enabled?.should == operator_enabled?(country_code, operator_id)
+          end
+        end
       end
 
       module Kh
@@ -155,8 +178,12 @@ module ChibiReporterSpecHelpers
 
         private
 
+        def country_code
+          :kh
+        end
+
         def sample_operator_report
-          super(:kh, operator_id)
+          super(country_code, operator_id)
         end
 
         def mime_type
@@ -173,6 +200,10 @@ module ChibiReporterSpecHelpers
 
         def business_name
           ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"].gsub(/\s+/, "_").downcase
+        end
+
+        def operator_human_name
+          ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{operator_id.to_s.upcase}_HUMAN_NAME"]
         end
       end
     end

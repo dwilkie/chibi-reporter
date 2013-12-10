@@ -51,14 +51,17 @@ module Chibi
 
       def operator_report(country_code, operator, operator_data)
         operator_report_path = "operator/#{country_code}/#{operator}"
-        if File.exists?(File.expand_path("./report/#{operator_report_path}.rb", File.dirname(__FILE__)))
-          "chibi/reporter/report/#{operator_report_path}".classify.constantize.new(
-            :data => operator_data,
-            :month => month,
-            :year => year,
-            :invoice_number => invoice_number + 1
-          )
-        end
+        return unless File.exists?(
+          File.expand_path("./report/#{operator_report_path}.rb", File.dirname(__FILE__))
+        )
+        operator_report_class = "chibi/reporter/report/#{operator_report_path}".classify.constantize
+        return unless operator_report_class.enabled?
+        operator_report_class.new(
+          :data => operator_data,
+          :month => month,
+          :year => year,
+          :invoice_number => invoice_number + 1
+        )
       end
 
       def report_data
