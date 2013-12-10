@@ -36,6 +36,29 @@ module ChibiReporterSpecHelpers
     @asserted_operators
   end
 
+  def report_file_extension
+    "xlsx"
+  end
+
+  def operator_suggested_filename(year, month, country_code, operator_id)
+    business_name = ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.upcase}_BUSINESS_NAME"].gsub(/\s+/, "_").downcase
+    operator_human_name = ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_#{operator_id.to_s.upcase}_HUMAN_NAME"]
+    "#{year}/#{month}/#{operator_human_name}_#{business_name}_invoice_and_report_january_2014.#{report_file_extension}"
+  end
+
+  def google_drive_root_directory(country_code, operator_id)
+    ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_#{operator_id.to_s.upcase}_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
+  end
+
+  def aws_s3_root_directory(country_code, operator_id)
+    File.join(
+      ENV["CHIBI_REPORTER_REPORT_AWS_S3_ROOT_DIRECTORY"],
+      ENV["CHIBI_REPORTER_REPORT_OPERATOR_AWS_S3_ROOT_DIRECTORY"],
+      ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_AWS_S3_ROOT_DIRECTORY"],
+      ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_#{operator_id.to_s.upcase}_AWS_S3_ROOT_DIRECTORY"]
+    )
+  end
+
   module ChibiClient
     include ChibiReporterSpecHelpers
 
@@ -75,10 +98,31 @@ module ChibiReporterSpecHelpers
 
   module Aws
     module S3Client
+      include ChibiReporterSpecHelpers
+
       private
 
       def aws_s3_metadata_url
-        "https://#{ENV['AWS_S3_BUCKET']}.s3.amazonaws.com/#{ENV['AWS_S3_CHIBI_REPORTER_METADATA_FILE']}"
+        aws_s3_url(ENV['CHIBI_REPORTER_AWS_S3_METADATA_FILE'])
+      end
+
+      def aws_s3_url(key)
+        path = aws_s3_object_key(key)
+        "https://#{ENV['AWS_S3_BUCKET']}.s3.amazonaws.com/#{path}"
+      end
+
+      def aws_s3_object_key(key)
+        File.join(ENV['CHIBI_REPORTER_AWS_S3_ROOT_DIRECTORY'], key)
+      end
+
+      def aws_s3_upload_erb(options = {})
+        upload_urls = []
+        options[:files].each do |file|
+          upload_urls << {
+            :url => aws_s3_url(File.join(file[:root_directory], file[:filename]))
+          }
+        end
+        {:aws_s3_upload_urls => upload_urls}
       end
     end
   end
@@ -150,7 +194,7 @@ module ChibiReporterSpecHelpers
 
         describe "#suggested_filename" do
           it "should return a filename and path which includes the operator's name, our business name and report period" do
-            subject.suggested_filename.should == "2014/01_january/#{operator_human_name}_#{business_name}_invoice_and_report_january_2014.#{file_extension}"
+            subject.suggested_filename.should == operator_suggested_filename(2014, "01_january")
           end
         end
 
@@ -161,14 +205,20 @@ module ChibiReporterSpecHelpers
         end
 
         describe "#google_drive_root_directory_id" do
-          it "should return google drive parent directory id" do
-            subject.google_drive_root_directory_id.should == google_drive_root_directory_id
+          it "should return google drive root directory id" do
+            subject.google_drive_root_directory_id.should == google_drive_root_directory
+          end
+        end
+
+        describe "#aws_s3_root_directory" do
+          it "should return the aws s3 root directory" do
+            subject.aws_s3_root_directory.should == aws_s3_root_directory
           end
         end
 
         describe ".enabled?" do
           it "should return whether or not this report is enabled" do
-            subject.class.enabled?.should == operator_enabled?(country_code, operator_id)
+            subject.class.enabled?.should == operator_enabled?
           end
         end
       end
@@ -190,20 +240,20 @@ module ChibiReporterSpecHelpers
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         end
 
-        def file_extension
-          "xlsx"
+        def operator_enabled?
+          super(country_code, operator_id)
         end
 
-        def google_drive_root_directory_id
-          ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{operator_id.to_s.upcase}_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
+        def google_drive_root_directory
+          super(country_code, operator_id)
         end
 
-        def business_name
-          ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"].gsub(/\s+/, "_").downcase
+        def aws_s3_root_directory
+          super(country_code, operator_id)
         end
 
-        def operator_human_name
-          ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_#{operator_id.to_s.upcase}_HUMAN_NAME"]
+        def operator_suggested_filename(year, month)
+          super(year, month, country_code, operator_id)
         end
       end
     end

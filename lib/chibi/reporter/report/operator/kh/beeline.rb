@@ -14,6 +14,10 @@ module Chibi
               ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BEELINE_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
             end
 
+            def aws_s3_root_directory
+              super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BEELINE_AWS_S3_ROOT_DIRECTORY"])
+            end
+
             private
 
             def human_name

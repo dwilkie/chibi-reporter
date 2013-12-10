@@ -20,13 +20,13 @@ module Chibi
         Time.new(report_year, report_month).strftime("%m_%B").downcase
       end
 
-      def expected_files
+      def expected_files(upload_type)
         files = []
         asserted_operators.each do |country_code, operator_ids|
           operator_ids.each do |operator_id|
             files << {
-              :filename => File.join(report_year.to_s, month_directory, "foo.xlsx"),
-              :root_directory => ENV["CHIBI_REPORTER_REPORT_OPERATOR_#{country_code.to_s.upcase}_#{operator_id.to_s.upcase}_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
+              :filename => operator_suggested_filename(report_year.to_s, month_directory, country_code, operator_id),
+              :root_directory => send("#{upload_type}_root_directory", country_code, operator_id)
             }
           end
         end
@@ -42,7 +42,9 @@ module Chibi
               :aws_s3_metadata_url => aws_s3_metadata_url,
               :metadata => {:last_invoice_number => last_invoice_number}
             }.merge(
-              google_drive_upload_erb(:files => expected_files)
+              google_drive_upload_erb(:files => expected_files(:google_drive))
+            ).merge(
+              aws_s3_upload_erb(:files => expected_files(:aws_s3))
             ),
             &block
           )

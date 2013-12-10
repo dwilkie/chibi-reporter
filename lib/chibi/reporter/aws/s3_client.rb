@@ -5,10 +5,23 @@ module Chibi
         require 'aws-sdk'
 
         def metadata_file
-          @metadata_file ||= bucket.objects[ENV["AWS_S3_CHIBI_REPORTER_METADATA_FILE"]]
+          @metadata_file ||= bucket.objects[metadata_file_key]
+        end
+
+        def upload(file, options = {})
+          key = File.join(object_key(options[:root_directory]), options[:filename])
+          bucket.objects[key].write(file)
         end
 
         private
+
+        def metadata_file_key
+          object_key(ENV["CHIBI_REPORTER_AWS_S3_METADATA_FILE"])
+        end
+
+        def object_key(key)
+          File.join(ENV["CHIBI_REPORTER_AWS_S3_ROOT_DIRECTORY"], key)
+        end
 
         def s3
           @s3 ||= ::AWS::S3.new(

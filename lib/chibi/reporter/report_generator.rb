@@ -27,7 +27,16 @@ module Chibi
       private
 
       def distribute(operator_report)
+        upload_to_s3(operator_report)
         upload_to_google_drive(operator_report)
+      end
+
+      def upload_to_s3(operator_report)
+        s3_client.upload(
+          operator_report.io_stream,
+          :filename => operator_report.suggested_filename,
+          :root_directory => operator_report.aws_s3_root_directory
+        )
       end
 
       def upload_to_google_drive(operator_report)

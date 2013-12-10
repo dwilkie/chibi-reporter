@@ -145,6 +145,51 @@ http_interactions:
         }
     http_version:
   recorded_at: Mon, 09 Dec 2013 15:48:10 GMT
+<% aws_s3_upload_urls.each do |aws_s3_upload_url| %>
+- request:
+    method: put
+    uri: <%= aws_s3_upload_url[:url] %>
+    body:
+      encoding: UTF-8
+      string: foo
+    headers:
+      Content-Type:
+      - ''
+      Accept-Encoding:
+      - ''
+      Content-Length:
+      - '3'
+      User-Agent:
+      - aws-sdk-ruby/1.29.0 ruby/2.0.0 x86_64-linux
+      Date:
+      - Tue, 10 Dec 2013 14:46:11 GMT
+      Authorization:
+      - AWS aws_access_key_id:aws_secret_access_key=
+      Accept:
+      - '*/*'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - JqNd1ia/y3apAInmBh+L0kPPck7i23waJ61P8MkEk5PeipNKk8hfP1PEckuRvfjX
+      X-Amz-Request-Id:
+      - DEA16BB942C41069
+      Date:
+      - Tue, 10 Dec 2013 14:46:16 GMT
+      Etag:
+      - '"acbd18db4cc2f85cedef654fccc4a4d8"'
+      Content-Length:
+      - '0'
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Tue, 10 Dec 2013 14:46:15 GMT
+<% end %>
 <% google_drive_upload_urls.each do |google_drive_url| %>
 <% response = "{\"items\":[{\"id\":\"#{google_drive_url[:result]}\"}]}" %>
 - request:

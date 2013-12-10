@@ -46,6 +46,10 @@ module Chibi
 
             private
 
+            def aws_s3_root_directory(*parts)
+              super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_AWS_S3_ROOT_DIRECTORY"], *parts)
+            end
+
             def filename
               text = []
               text << human_name

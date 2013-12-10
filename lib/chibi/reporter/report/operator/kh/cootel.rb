@@ -18,6 +18,10 @@ module Chibi
               ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_HUMAN_NAME"]
             end
 
+            def aws_s3_root_directory
+              super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_AWS_S3_ROOT_DIRECTORY"])
+            end
+
             private
 
             def billing_name
