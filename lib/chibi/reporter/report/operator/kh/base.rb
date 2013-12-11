@@ -340,26 +340,24 @@ module Chibi
               configuration(:business_logo_path)
             end
 
-            # billing details
-
             def bank_name
-              configuration(:bank_name)
+              configuration(:business_bank_name)
             end
 
             def bank_account_name
-              configuration(:bank_account_name)
+              configuration(:business_bank_account_name)
             end
 
             def bank_account_number
-              configuration(:bank_account_number)
+              configuration(:business_bank_account_number)
             end
 
             def bank_swift_code
-              configuration(:bank_swift_code)
+              configuration(:business_bank_swift_code)
             end
 
             def bank_address
-              configuration(:bank_address)
+              configuration(:business_bank_address)
             end
 
             def vat_rate
