@@ -37,6 +37,7 @@ module Chibi
           last_mail.subject.should == mail_subject
           last_mail.text_part.decoded.should == body
           attachment = last_mail.attachments[0]
+          attachment.body.decoded.should == file_contents
           attachment.filename.should == filename
         end
       end
