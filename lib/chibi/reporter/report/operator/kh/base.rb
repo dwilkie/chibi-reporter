@@ -16,6 +16,8 @@ module Chibi
             LARGE_FONT_SIZE = 12
             HUGE_FONT_SIZE = 32
 
+            CONFIGURATION_PREFIX = "KH"
+
             attr_accessor :month, :year, :invoice_number, :data, :io_stream
             attr_accessor :current_sheet
 
@@ -40,27 +42,78 @@ module Chibi
               sanitize(File.join(year.to_s, invoice_month.strftime("%m_%B"), filename))
             end
 
+            def mail_subject
+              report_name
+            end
+
+            def mail_body
+              interpolate(
+                configuration(:mail_body),
+                :mail_recipient_names => mail_recipient_names,
+                :business_name => business_name,
+                :invoice_period => invoice_period,
+                :mail_sender_signature => mail_sender_signature
+              )
+            end
+
+            def mail_sender
+              configuration(:mail_sender)
+            end
+
+            def google_drive_root_directory_id
+              configuration(:google_drive_root_directory_id)
+            end
+
             private
 
-            def self.enabled?(flag)
-              flag.to_i == 1
+            def self.configuration(key, *prefixes)
+              super(key, CONFIGURATION_PREFIX, *prefixes)
+            end
+
+            def self.enabled?
+              configuration(:enabled).to_i == 1
             end
 
             def aws_s3_root_directory(*parts)
-              super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_AWS_S3_ROOT_DIRECTORY"], *parts)
+              super(configuration(:aws_s3_root_directory, :scope => CONFIGURATION_PREFIX), *parts)
+            end
+
+            def mail_recipients(*recipients)
+              super(*recipients, *kh_recipients_list(:recipients))
+            end
+
+            def mail_cc(*recipients)
+              super(*recipients, *kh_recipients_list(:cc))
+            end
+
+            def mail_bcc(*recipients)
+              super(*recipients, *kh_recipients_list(:bcc))
+            end
+
+            def kh_recipients_list(list_type)
+              [*(configuration("mail_#{list_type}", :scope => CONFIGURATION_PREFIX) || [])]
             end
 
             def filename
+              report_name << ".xlsx"
+            end
+
+            def mail_sender_signature
+              configuration(:mail_sender_signature)
+            end
+
+            def report_name
               text = []
               text << human_name
+              text << "-"
               text << business_name
-              text << "invoice_and_report"
+              text << "Invoice and Report"
               text << invoice_period
-              text.join("_") << ".xlsx"
+              text.join(" ")
             end
 
             def sanitize(text)
-              text.gsub(/\s+/, '_').downcase
+              text.gsub(/[^\w\.\/]/, " ").gsub(/\s+/, "_").downcase
             end
 
             def workbook
@@ -231,64 +284,90 @@ module Chibi
               style_attribute
             end
 
+            def mail_recipient_names
+              configuration(:mail_recipient_names)
+            end
+
+            # operator specific details
+
+            def human_name
+              configuration(:human_name)
+            end
+
+            def billing_name
+              configuration(:billing_name)
+            end
+
+            def billing_address
+              configuration(:billing_address)
+            end
+
+            def billing_vat_tin
+              configuration(:billing_vat_tin)
+            end
+
+            def billing_attention
+              configuration(:billing_attention)
+            end
+
             # business specific details
 
             def business_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_NAME"] || super
+              configuration(:business_name)
             end
 
             def business_vat_tin
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_VAT_TIN"] || super
+              configuration(:business_vat_tin)
             end
 
             def business_email
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_EMAIL"] || super
+              configuration(:business_email)
             end
 
             def business_phone
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_PHONE"] || super
+              configuration(:business_phone)
             end
 
             def business_web
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_WEB"] || super
+              configuration(:business_web)
             end
 
             def business_address
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_ADDRESS"] || super
+              configuration(:business_address)
             end
 
             def business_logo_path
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_LOGO_PATH"] || super
+              configuration(:business_logo_path)
             end
 
             # billing details
 
             def bank_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_NAME"] || super
+              configuration(:bank_name)
             end
 
             def bank_account_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_ACCOUNT_NAME"] || super
+              configuration(:bank_account_name)
             end
 
             def bank_account_number
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_ACCOUNT_NUMBER"] || super
+              configuration(:bank_account_number)
             end
 
             def bank_swift_code
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_SWIFT_CODE"] || super
+              configuration(:bank_swift_code)
             end
 
             def bank_address
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_BUSINESS_BANK_ADDRESS"] || super
+              configuration(:bank_address)
             end
 
             def vat_rate
-              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_VAT_RATE"] || super).to_f
+              configuration(:vat_rate).to_f
             end
 
             def specific_tax_rate
-              (ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_SPECIFIC_TAX_RATE"] || super).to_f
+              configuration(:specific_tax_rate).to_f
             end
 
             def invoice_period
@@ -302,8 +381,6 @@ module Chibi
             def invoice_date
               Date::strptime(Date.today.strftime("%d-%m-%Y"), '%d-%m-%Y')
             end
-
-            # google drive
 
             def add_blank_rows(count)
               count.times { add_row }

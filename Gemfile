@@ -7,6 +7,8 @@ gem "httparty"
 gem 'rake'
 gem 'aws-sdk'
 gem 'google-api-client'
+gem 'mail'
+gem 'recipient_interceptor'
 
 group :development do
   gem 'foreman'
@@ -15,7 +17,6 @@ end
 group :test do
   gem 'guard-rspec'
   gem 'rspec'
-  gem 'fakefs'
   gem 'webmock'
   gem 'vcr', :git => "git://github.com/vcr/vcr.git"
   gem 'timecop'

@@ -4,6 +4,7 @@ module Chibi
       require_relative "./chibi_client"
       require_relative "./aws/s3_client"
       require_relative "./google/drive_client"
+      require_relative "./report_mailer"
 
       Dir[File.join(File.dirname(__FILE__), '**/*.rb')].each { |file| require file }
 
@@ -29,6 +30,7 @@ module Chibi
       def distribute(operator_report)
         upload_to_s3(operator_report)
         upload_to_google_drive(operator_report)
+        email(operator_report)
       end
 
       def upload_to_s3(operator_report)
@@ -45,6 +47,19 @@ module Chibi
           :filename => operator_report.suggested_filename,
           :mime_type => operator_report.mime_type,
           :root_directory => operator_report.google_drive_root_directory_id
+        )
+      end
+
+      def email(operator_report)
+        report_mailer.deliver_mail(
+          operator_report.io_stream,
+          :filename => operator_report.suggested_filename,
+          :subject => operator_report.mail_subject,
+          :recipients => operator_report.mail_recipients,
+          :cc => operator_report.mail_cc,
+          :bcc => operator_report.mail_bcc,
+          :sender => operator_report.mail_sender,
+          :body => operator_report.mail_body
         )
       end
 
@@ -93,10 +108,6 @@ module Chibi
         @metadata_file ||= s3_client.metadata_file
       end
 
-      def s3_client
-        @s3_client ||= Aws::S3Client.new
-      end
-
       def remote_report
         @remote_report ||= chibi_client.get_remote_report
       end
@@ -105,8 +116,16 @@ module Chibi
         @chibi_client ||= ChibiClient.new
       end
 
+      def s3_client
+        @s3_client ||= Aws::S3Client.new
+      end
+
       def google_drive_client
         @google_drive_client ||= Google::DriveClient.new
+      end
+
+      def report_mailer
+        @report_mailer ||= ReportMailer.new
       end
 
       def increment_invoice_number?

@@ -6,38 +6,32 @@ module Chibi
       module Operator
         module Kh
           class Cootel < Base
-            def self.enabled?
-              super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_ENABLED"])
-            end
-
-            def google_drive_root_directory_id
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_GOOGLE_DRIVE_ROOT_DIRECTORY_ID"]
-            end
-
-            def human_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_HUMAN_NAME"]
-            end
+            CONFIGURATION_PREFIX = "COOTEL"
 
             def aws_s3_root_directory
-              super(ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_AWS_S3_ROOT_DIRECTORY"])
+              super(configuration(:aws_s3_root_directory, :scope => CONFIGURATION_PREFIX))
+            end
+
+            def mail_recipients
+              super(*recipients_list(:recipients))
+            end
+
+            def mail_cc
+              super(*recipients_list(:cc))
+            end
+
+            def mail_bcc
+              super(*recipients_list(:bcc))
             end
 
             private
 
-            def billing_name
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_BILLING_NAME"]
+            def recipients_list(list_type)
+              [*(configuration("mail_#{list_type}", :scope => CONFIGURATION_PREFIX) || [])]
             end
 
-            def billing_address
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_BILLING_ADDRESS"]
-            end
-
-            def billing_vat_tin
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_BILLING_VAT_TIN"]
-            end
-
-            def billing_attention
-              ENV["CHIBI_REPORTER_REPORT_OPERATOR_KH_COOTEL_BILLING_ATTENTION"]
+            def self.configuration(key, *args)
+              super(key, CONFIGURATION_PREFIX, *args)
             end
           end
         end
