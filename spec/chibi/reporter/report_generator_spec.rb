@@ -73,14 +73,40 @@ module Chibi
               super(:reports_operator_metadata => {report_year => {report_month => 2.days.ago}})
             end
 
-            it "should not update any metadata" do
+            it "should not generate any reports" do
               expect_report_generator_run!
-              last_request.uri.should_not == aws_s3_metadata_url
+              last_request(:url).should == aws_s3_metadata_url
+              last_request(:method).should == :get
+              mail_deliveries.should be_empty
             end
 
-            it "should not send out any emails" do
-              expect_report_generator_run!
-              mail_deliveries.should be_empty
+            context "and the environment has CHIBI_REPORTER_REPORT_FORCE_GENERATE=1" do
+              let(:force_generate) { get_env }
+
+              def set_env(value)
+                normalized_value = value.to_s
+                ENV["CHIBI_REPORTER_REPORT_FORCE_GENERATE"] = normalized_value if value
+              end
+
+              def get_env
+                ENV["CHIBI_REPORTER_REPORT_FORCE_GENERATE"]
+              end
+
+              before do
+                force_generate
+              end
+
+              after do
+                set_env(force_generate)
+              end
+
+              it "should generate the reports but not email them" do
+                set_env(1)
+                expect_report_generator_run!
+                last_request(:url).should == google_drive_upload_file_url
+                last_request(:method).should == google_drive_upload_file_method
+                mail_deliveries.should be_empty
+              end
             end
           end
 

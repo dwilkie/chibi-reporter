@@ -27,6 +27,10 @@ module ChibiReporterSpecHelpers
     env_config(:enabled, country_code, operator_id).to_i == 1
   end
 
+  def force_generate?(country_code, operator_id)
+    env_config(:force_generate, country_code, operator_id).to_i == 1
+  end
+
   def email_enabled?(country_code, operator_id)
     env_config(:email_enabled, country_code, operator_id).to_i == 1
   end
@@ -238,8 +242,8 @@ module ChibiReporterSpecHelpers
             }
           end
           upload_urls << {
-            :url => "https://www.googleapis.com/upload/drive/v2/files?alt=json&uploadType=multipart",
-            :method => :post,
+            :url => google_drive_upload_file_url,
+            :method => google_drive_upload_file_method,
             :result => file[:upload_result] || "result"
           }
         end
@@ -259,6 +263,14 @@ module ChibiReporterSpecHelpers
 
       def google_oauth_url
         "https://accounts.google.com/o/oauth2/token"
+      end
+
+      def google_drive_upload_file_url
+        "https://www.googleapis.com/upload/drive/v2/files?alt=json&uploadType=multipart"
+      end
+
+      def google_drive_upload_file_method
+        :post
       end
     end
   end
@@ -297,13 +309,25 @@ module ChibiReporterSpecHelpers
 
         describe ".enabled?" do
           it "should return whether or not this report is enabled" do
-            subject.class.enabled?.should == operator_enabled?
+            result = subject.class.enabled?
+            result.should_not be_nil
+            result.should == operator_enabled?
           end
         end
 
-        describe "#email_enabled" do
+        describe "#email_enabled?" do
           it "should return whether or not this report has email enabled" do
-            subject.email_enabled?.should == email_enabled?
+            result = subject.email_enabled?
+            result.should_not be_nil
+            result.should == email_enabled?
+          end
+        end
+
+        describe "#force_generate?" do
+          it "should return whether or not this report should be force generated" do
+            result = subject.force_generate?
+            result.should_not be_nil
+            result.should == force_generate?
           end
         end
 
@@ -412,6 +436,10 @@ module ChibiReporterSpecHelpers
         end
 
         def email_enabled?
+          super(country_code, operator_id)
+        end
+
+        def force_generate?
           super(country_code, operator_id)
         end
 

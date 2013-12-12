@@ -19,6 +19,7 @@ module Chibi
         self.invoice_number = reports_operator_metadata[LAST_INVOICE_NUMBER_KEY].to_i
 
         with_operator_reports do |operator_report|
+          next if operator_reports_exist? && !operator_report.force_generate?
           operator_report.generate!
           distribute(operator_report)
           self.invoice_number += 1

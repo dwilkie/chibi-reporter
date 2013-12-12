@@ -60,6 +60,10 @@ module Chibi
               configuration(:email_enabled).to_i == 1
             end
 
+            def force_generate?
+              configuration(:force_generate).to_i == 1
+            end
+
             def mail_sender
               configuration(:mail_sender)
             end
