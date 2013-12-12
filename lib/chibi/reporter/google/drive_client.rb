@@ -53,6 +53,8 @@ module Chibi
         end
 
         def upload_file(file, options = {})
+          connection = Faraday.default_connection
+          connection.options[:timeout] = 500
           client.execute(
             :api_method => api.files.insert,
             :body_object => api.files.insert.request_schema.new(
@@ -64,7 +66,8 @@ module Chibi
             :parameters => {
               'uploadType' => 'multipart',
               'alt' => 'json'
-            }
+            },
+            :connection => connection
           )
         end
 
