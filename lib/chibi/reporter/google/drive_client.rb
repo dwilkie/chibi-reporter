@@ -55,6 +55,7 @@ module Chibi
         def upload_file(file, options = {})
           connection = Faraday.default_connection
           connection.options[:timeout] = 500
+          connection.options[:ssl] = {:verify => false}
           client.execute(
             :api_method => api.files.insert,
             :body_object => api.files.insert.request_schema.new(
