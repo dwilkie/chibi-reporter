@@ -15,7 +15,7 @@ module Chibi
       attr_accessor :invoice_number
 
       def run!
-        return unless remote_report
+        raise("remote report not yet available") unless remote_report
         self.invoice_number = reports_operator_metadata[LAST_INVOICE_NUMBER_KEY].to_i
 
         with_operator_reports do |operator_report|

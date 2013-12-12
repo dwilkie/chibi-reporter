@@ -52,6 +52,17 @@ module Chibi
           )
         end
 
+        context "given the remote report is not available" do
+          it "should raise an error" do
+            expect {
+              expect_chibi_client_get_remote_report(:chibi_client_get_remote_report_404) { subject.run! }
+            }.to raise_error(RuntimeError, "remote report not yet available")
+
+            last_request(:url).should == chibi_client_remote_report_uri.to_s
+            mail_deliveries.should be_empty
+          end
+        end
+
         context "given the remote report is available" do
           def expect_report_generator_run!(options = {})
             super(options) { subject.run! }
