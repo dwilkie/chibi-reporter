@@ -164,11 +164,7 @@ module Chibi
             def service_details_data_row(service_data_row, headers)
               data_row = service_data_row.dup
               data_row.each_with_index do |data_cell, index|
-                if timestamp_column?(headers, index)
-                  time = Time.parse(data_cell)
-                  spreadsheet_time = Time.at(time.to_f + time.utc_offset)
-                  data_row[index] = spreadsheet_time
-                end
+                data_row[index] = Time.parse(data_cell) if timestamp_column?(headers, index)
               end
               data_row
             end

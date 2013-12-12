@@ -342,7 +342,8 @@ module ChibiReporterSpecHelpers
 
         describe "#generate!" do
           it "should create a report and return a string IO" do
-            subject.generate!.should be_a(StringIO)
+            result = subject.generate!
+            result.should be_a(StringIO)
           end
         end
 
