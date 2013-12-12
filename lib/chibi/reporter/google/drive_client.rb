@@ -56,7 +56,7 @@ module Chibi
           connection = Faraday.default_connection
           connection.options[:timeout] = 500
           connection.options[:ssl] = {:verify => false}
-          client.execute(
+          result = client.execute(
             :api_method => api.files.insert,
             :body_object => api.files.insert.request_schema.new(
               'title' => options[:title],
@@ -65,11 +65,18 @@ module Chibi
             ),
             :media => ::Google::APIClient::UploadIO.new(file, options[:mime_type]),
             :parameters => {
-              'uploadType' => 'multipart',
+              'uploadType' => 'resumable',
               'alt' => 'json'
             },
             :connection => connection
           )
+
+          upload = result.resumable_upload
+
+          # Resume if needed
+          if upload.resumable?
+            client.execute(upload)
+          end
         end
 
         def client

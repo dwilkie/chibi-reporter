@@ -103,7 +103,7 @@ module Chibi
               it "should generate the reports but not email them" do
                 set_env(1)
                 expect_report_generator_run!
-                last_request(:url).should == google_drive_upload_file_url
+                last_request(:url).should == google_drive_upload_file_url(:upload_id => true)
                 last_request(:method).should == google_drive_upload_file_method
                 mail_deliveries.should be_empty
               end

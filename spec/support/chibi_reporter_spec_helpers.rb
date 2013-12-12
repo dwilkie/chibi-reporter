@@ -241,8 +241,15 @@ module ChibiReporterSpecHelpers
               :result => root_directory
             }
           end
+
           upload_urls << {
             :url => google_drive_upload_file_url,
+            :method => google_drive_upload_file_method,
+            :location => google_drive_upload_file_url(:upload_id => true)
+          }
+
+          upload_urls << {
+            :url => google_drive_upload_file_url(:upload_id => true),
             :method => google_drive_upload_file_method,
             :result => file[:upload_result] || "result"
           }
@@ -265,8 +272,10 @@ module ChibiReporterSpecHelpers
         "https://accounts.google.com/o/oauth2/token"
       end
 
-      def google_drive_upload_file_url
-        "https://www.googleapis.com/upload/drive/v2/files?alt=json&uploadType=multipart"
+      def google_drive_upload_file_url(options = {})
+        base_url = "https://www.googleapis.com/upload/drive/v2/files?alt=json&uploadType=resumable"
+        base_url << "&upload_id=upload_id" if options[:upload_id]
+        base_url
       end
 
       def google_drive_upload_file_method

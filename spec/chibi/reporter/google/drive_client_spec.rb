@@ -28,9 +28,13 @@ module Chibi
               )
             end
 
-            uploaded_file = last_request(:body)["filename"]
-            uploaded_file.should include(mime_type)
-            uploaded_file.should include(file_contents)
+            upload_metadata = JSON.parse(requests[2].body)
+            upload_metadata["title"].should == File.basename(filename)
+            upload_metadata["mimeType"].should == mime_type
+            upload_metadata["parents"].should == ["id" => File.dirname(filename)]
+
+            upload = requests[3].body
+            upload.should == file_contents
           end
         end
       end

@@ -80,6 +80,10 @@ http_interactions:
       code: 200
       message: OK
     headers:
+      <% if google_drive_url[:location] %>
+      Location:
+      - <%= google_drive_url[:location] %>
+      <% end %>
       Expires:
       - Mon, 09 Dec 2013 16:49:48 GMT
       Date:
