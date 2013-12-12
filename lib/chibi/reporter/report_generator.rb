@@ -31,9 +31,9 @@ module Chibi
       private
 
       def distribute(operator_report)
-        email(operator_report) if !operator_reports_exist? && operator_report.email_enabled?
         upload_to_s3(operator_report)
         upload_to_google_drive(operator_report)
+        email(operator_report) if !operator_reports_exist? && operator_report.email_enabled?
       end
 
       def upload_to_s3(operator_report)
