@@ -82,13 +82,13 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '27'
+      - <%= (metadata.to_json.length + 1).to_s %>
       Server:
       - AmazonS3
     body:
       encoding: UTF-8
       string: |
-        {"last_invoice_number":<%=metadata[:last_invoice_number]%>}
+        <%= metadata.to_json %>
     http_version:
   recorded_at: Mon, 02 Dec 2013 14:16:17 GMT
 - request:
