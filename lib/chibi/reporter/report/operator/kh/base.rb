@@ -56,6 +56,10 @@ module Chibi
               )
             end
 
+            def email_enabled?
+              configuration(:email_enabled).to_i == 1
+            end
+
             def mail_sender
               configuration(:mail_sender)
             end

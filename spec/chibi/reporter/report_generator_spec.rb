@@ -56,7 +56,7 @@ module Chibi
           end
 
           it "should send an email for each operator report" do
-            with_asserted_operators do |country_code, operator_id, index|
+            with_asserted_operators(:email_enabled => true) do |country_code, operator_id, index|
               mail_delivery = mail_deliveries[index]
               mail_delivery.from.should == [mail_sender(country_code, operator_id)]
               mail_delivery.to.should == mail_recipients(country_code, operator_id)

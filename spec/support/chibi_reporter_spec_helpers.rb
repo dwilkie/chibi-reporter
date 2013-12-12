@@ -27,22 +27,29 @@ module ChibiReporterSpecHelpers
     env_config(:enabled, country_code, operator_id).to_i == 1
   end
 
-  def asserted_operators
-    return @asserted_operators if @asserted_operators
-    @asserted_operators = {}
+  def email_enabled?(country_code, operator_id)
+    env_config(:email_enabled, country_code, operator_id).to_i == 1
+  end
+
+  def asserted_operators(options = {})
+    asserted_operators = {}
     all_operators.each do |country_code, operator_ids|
-      @asserted_operators[country_code] = []
+      asserted_operators[country_code] = []
       operator_ids.each do |operator_id|
-        @asserted_operators[country_code] << operator_id if operator_enabled?(country_code, operator_id)
+        enabled = operator_enabled?(country_code, operator_id)
+        options.each do |criterion, value|
+          enabled &&= send("#{criterion}?", country_code, operator_id) if value
+        end
+        asserted_operators[country_code] << operator_id if enabled
       end
     end
 
-    @asserted_operators
+    asserted_operators
   end
 
-  def with_asserted_operators(&block)
+  def with_asserted_operators(options = {}, &block)
     index = 0
-    asserted_operators.each do |country_code, operator_ids|
+    asserted_operators(options).each do |country_code, operator_ids|
       operator_ids.each do |operator_id|
         yield country_code, operator_id, index
         index += 1
@@ -294,6 +301,12 @@ module ChibiReporterSpecHelpers
           end
         end
 
+        describe "#email_enabled" do
+          it "should return whether or not this report has email enabled" do
+            subject.email_enabled?.should == email_enabled?
+          end
+        end
+
         describe "#generate!" do
           it "should create a report and return a string IO" do
             subject.generate!.should be_a(StringIO)
@@ -395,6 +408,10 @@ module ChibiReporterSpecHelpers
         end
 
         def operator_enabled?
+          super(country_code, operator_id)
+        end
+
+        def email_enabled?
           super(country_code, operator_id)
         end
 

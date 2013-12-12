@@ -30,7 +30,7 @@ module Chibi
       def distribute(operator_report)
         upload_to_s3(operator_report)
         upload_to_google_drive(operator_report)
-        email(operator_report)
+        email(operator_report) if operator_report.email_enabled?
       end
 
       def upload_to_s3(operator_report)
