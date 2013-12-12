@@ -37,7 +37,7 @@ heroku run rake chibi:reporter:report_generator:run
 This will generate xlsx reports for the the operators, upload them and email them to the relevant people based for the data from the remote report created above. This will happen *only* if the reports have *never* been generated for that particular month. To force reports to be re-generated run:
 
 ```shell
-CHIBI_REPORTER_REPORT_FORCE_REPORT_GENERATE=1 heroku run rake chibi:reporter:report_generator:run
+CHIBI_REPORTER_REPORT_FORCE_GENERATE=1 heroku run rake chibi:reporter:report_generator:run
 ```
 
 Note that this will *not* resend any emails.
