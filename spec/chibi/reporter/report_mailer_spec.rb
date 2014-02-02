@@ -4,6 +4,7 @@ require './lib/chibi/reporter/report_mailer'
 module Chibi
   module Reporter
     describe ReportMailer do
+      include ChibiReporterSpecHelpers
       include ChibiReporterSpecHelpers::MailAssertions
 
       describe "#deliver_mail(file, options)" do
@@ -39,6 +40,8 @@ module Chibi
           attachment = last_mail.attachments[0]
           attachment.body.decoded.should == file_contents
           attachment.filename.should == filename
+          attachment.content_transfer_encoding.should == "base64"
+          attachment.mime_type.should == mime_type
         end
       end
     end
