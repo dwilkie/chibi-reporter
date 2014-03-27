@@ -138,6 +138,7 @@ module Chibi
                   report_year, report_month, country_code, operator_id
                 )
                 attachment = mail_delivery.attachments.first
+                attachment.body.decoded.size.should > 0
                 attachment.filename.should == File.basename(
                   operator_suggested_filename(
                     report_year, report_month, country_code, operator_id

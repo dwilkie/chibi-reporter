@@ -18,8 +18,9 @@ module Chibi
 
             CONFIGURATION_PREFIX = "KH"
 
-            attr_accessor :month, :year, :invoice_number, :data, :io_stream
+            attr_accessor :month, :year, :invoice_number, :data
             attr_accessor :current_sheet
+            attr_reader   :io_stream
 
             def initialize(options = {})
               self.month = options[:month]
@@ -31,7 +32,12 @@ module Chibi
             def generate!
               add_invoice
               add_service_details
-              self.io_stream = package.to_stream
+              @io_stream = package.to_stream
+            end
+
+            def io_stream
+              @io_stream.rewind
+              @io_stream
             end
 
             def mime_type

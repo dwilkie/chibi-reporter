@@ -347,6 +347,19 @@ module ChibiReporterSpecHelpers
           end
         end
 
+        describe "#io_stream" do
+          it "should always return a rewinded StringIO" do
+            subject.generate!
+            2.times do
+              result = subject.io_stream
+              result.should be_a(StringIO)
+              result.should_not be_eof
+              result.read
+              result.should be_eof
+            end
+          end
+        end
+
         describe "#suggested_filename" do
           it "should return a filename and path which includes the operator's name, our business name and report period" do
             result = subject.suggested_filename
