@@ -6,7 +6,7 @@ module Chibi
       def deliver_mail(file, options)
         filename = File.basename(options[:filename])
         Mail.deliver do
-          attachments[filename] = file.read
+          attachments[filename] = {:content => Base64.encode64(file.read), :encoding => 'base64'}
           subject(options[:subject])
           from(options[:sender])
           to(options[:recipients])
