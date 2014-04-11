@@ -1,12 +1,44 @@
 # chibi_reporter
 
-Handles Reporting for Chibi
+Handles Reporting for [Chibi](https://github.com/dwilkie/chibi)
 
 ## Features
 
 1. Generates monthly xlsx reports and invoices for operators
 2. Uploads the reports to S3 and Google Drive
 3. Emails the reports to the relevant people
+
+## Development
+
+### Updating the Sample Remote Report
+
+If the [operator config](https://github.com/dwilkie/chibi/blob/master/config/custom_operators.yaml) in [Chibi](https://github.com/dwilkie/chibi) changes, you should update the [sample remote report](https://github.com/dwilkie/chibi-reporter/blob/master/spec/support/sample_remote_report.yaml). To do this, open up [report spec in Chibi](https://github.com/dwilkie/chibi/blob/master/spec/models/report_spec.rb#L207) and insert a line to output the `asserted_report` as yaml. e.g.
+
+```ruby
+it "should generate a report" do
+  asserted_report
+  File.open("sample_remote_report.yaml", 'w') { |file| file.write(asserted_report.to_yaml) }
+  # Rest of spec
+end
+```
+
+This will dump a sample report to yaml. Then replace the [sample remote report](https://github.com/dwilkie/chibi-reporter/blob/master/spec/support/sample_remote_report.yaml) with the newly generated report.
+
+### Inspecting the output of a report
+
+In the [spec helpers](https://github.com/dwilkie/chibi-reporter/blob/master/spec/support/chibi_reporter_spec_helpers.rb#L345) you can insert a line to output the generated report. e.g.
+
+```ruby
+describe "#generate!" do
+  it "should create a report and return a string IO" do
+    result = subject.generate!
+    File.open("sample_output.xlsx", 'w') { |file| file.write(result.read) }
+    # Rest of spec
+  end
+end
+```
+
+You should then be able to open `sample_output.xlsx`
 
 ## Usage
 
