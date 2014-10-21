@@ -260,6 +260,7 @@ module Chibi
               add_style(:bold, :gray, :border)
               add_style(:bold, :gray, :center, :border)
               add_style(:currency, :border)
+              add_style(:currency, :bold, :gray, :border)
               add_style(:percentage, :border)
               add_style(:integer, :border)
               add_style(:large, :italic, :center)
@@ -503,7 +504,7 @@ module Chibi
               add_service_column(:short_code)
               add_service_column(:quantity, :header => "Qty", :style => :integer)
               add_service_column(:unit_cost, :style => :currency)
-              add_service_column(:amount_including_tax) do
+              add_service_column(:amount_including_tax, :style => :currency) do
                 "=#{service_cell(:quantity)} * #{service_cell(:unit_cost)}"
               end
               add_service_column(:specific_tax, :style => :percentage) do |service_data|
@@ -512,10 +513,10 @@ module Chibi
               add_service_column(:vat, :style => :percentage) do |service_data|
                 service_data["vat"] || vat_rate
               end
-              add_service_column(:amount_excluding_tax) do
+              add_service_column(:amount_excluding_tax, :style => :currency) do
                 "=#{service_cell(:amount_including_tax)}/(1+#{service_cell(:specific_tax)})/(1+#{service_cell(:vat)})"
               end
-              add_service_column(:revenue_share) do |service_data|
+              add_service_column(:revenue_share, :style => :currency) do |service_data|
                 "=#{service_cell(:amount_excluding_tax)} * #{service_data['revenue_share']}"
               end
               @service_column_data
@@ -525,13 +526,14 @@ module Chibi
               @service_totals ||= {
                 :sub_total => {
                   :height => 25,
+                  :style => :currency,
                   :columns => [
                     {:header => true},
                     {
                       :value => Proc.new { |metadata|
                         "=sum(#{service_cell(:amount_excluding_tax, metadata[:start_services_row])}:#{service_cell(:amount_excluding_tax, metadata[:end_services_row])})"
                       },
-                      :position => service_column(:amount_excluding_tax)
+                      :position => service_column(:amount_excluding_tax),
                     },
                     {
                       :value => Proc.new { |metadata|
@@ -543,6 +545,7 @@ module Chibi
                 },
                 :vat => {
                   :height => 25,
+                  :style => :currency,
                   :columns => [
                     {:value => "VAT #{(vat_rate * 100).to_i}%", :header => true},
                     {
@@ -554,7 +557,7 @@ module Chibi
                   ]
                 },
                 :total => {
-                  :style => [:bold, :gray],
+                  :style => [:currency, :bold, :gray],
                   :columns => [
                     {:header => true},
                     {
