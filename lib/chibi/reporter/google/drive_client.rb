@@ -4,6 +4,7 @@ module Chibi
       class DriveClient
         require 'google/api_client'
         require 'json'
+        Faraday.default_adapter = :httpclient
 
         def upload(file, options = {})
           upload_file(

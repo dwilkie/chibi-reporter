@@ -9,6 +9,7 @@ gem 'aws-sdk'
 gem 'google-api-client'
 gem 'mail'
 gem 'recipient_interceptor'
+gem 'httpclient'
 
 group :development do
   gem 'foreman'
