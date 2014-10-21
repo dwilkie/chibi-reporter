@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
-ruby "2.0.0"
+ruby "2.1.2"
 
 gem 'axlsx', :git => "git://github.com/randym/axlsx.git"
-gem 'activesupport', ">= 4.0"
+gem 'activesupport'
 gem "httparty"
 gem 'rake'
 gem 'aws-sdk'
@@ -15,7 +15,6 @@ group :development do
 end
 
 group :test do
-  gem 'guard-rspec'
   gem 'rspec'
   gem 'webmock'
   gem 'vcr', :git => "git://github.com/vcr/vcr.git"
