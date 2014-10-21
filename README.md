@@ -1,5 +1,7 @@
 # chibi_reporter
 
+[ ![Codeship Status for dwilkie/chibi-reporter](https://codeship.io/projects/80c93a00-3aee-0132-c57a-12ef9d586401/status)](https://codeship.io/projects/42505)
+
 Handles Reporting for [Chibi](https://github.com/dwilkie/chibi)
 
 ## Features
