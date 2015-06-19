@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
-ruby "2.1.5"
+ruby "2.2.2"
 
-gem 'axlsx', :git => "git://github.com/randym/axlsx.git"
+gem 'axlsx', :github => "randym/axlsx"
 gem 'activesupport'
 gem "httparty"
 gem 'rake'
