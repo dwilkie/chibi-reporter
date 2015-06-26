@@ -31,17 +31,17 @@ module Chibi
             :body => body
           )
 
-          last_mail.from.should == [sender]
-          last_mail.to.should == recipients
-          last_mail.cc.should == cc
-          last_mail.bcc.should == bcc
-          last_mail.subject.should == mail_subject
-          last_mail.text_part.decoded.should == body
+          expect(last_mail.from).to eq([sender])
+          expect(last_mail.to).to eq(recipients)
+          expect(last_mail.cc).to eq(cc)
+          expect(last_mail.bcc).to eq(bcc)
+          expect(last_mail.subject).to eq(mail_subject)
+          expect(last_mail.text_part.decoded).to eq(body)
           attachment = last_mail.attachments[0]
-          attachment.body.decoded.should == file_contents
-          attachment.filename.should == filename
-          attachment.content_transfer_encoding.should == "base64"
-          attachment.mime_type.should == mime_type
+          expect(attachment.body.decoded).to eq(file_contents)
+          expect(attachment.filename).to eq(filename)
+          expect(attachment.content_transfer_encoding).to eq("base64")
+          expect(attachment.mime_type).to eq(mime_type)
         end
       end
     end

@@ -58,8 +58,8 @@ module Chibi
               expect_chibi_client_get_remote_report(:chibi_client_get_remote_report_404) { subject.run! }
             }.to raise_error(RuntimeError, "remote report not yet available")
 
-            last_request(:url).should == chibi_client_remote_report_uri.to_s
-            mail_deliveries.should be_empty
+            expect(last_request(:url)).to eq(chibi_client_remote_report_uri.to_s)
+            expect(mail_deliveries).to be_empty
           end
         end
 
@@ -75,9 +75,9 @@ module Chibi
 
             it "should not generate any reports" do
               expect_report_generator_run!
-              last_request(:url).should == aws_s3_metadata_url
-              last_request(:method).should == :get
-              mail_deliveries.should be_empty
+              expect(last_request(:url)).to eq(aws_s3_metadata_url)
+              expect(last_request(:method)).to eq(:get)
+              expect(mail_deliveries).to be_empty
             end
 
             context "and the environment has CHIBI_REPORTER_REPORT_FORCE_GENERATE=1" do
@@ -103,9 +103,9 @@ module Chibi
               it "should generate the reports but not email them" do
                 set_env(1)
                 expect_report_generator_run!
-                last_request(:url).should == google_drive_upload_file_url(:upload_id => true)
-                last_request(:method).should == google_drive_upload_file_method
-                mail_deliveries.should be_empty
+                expect(last_request(:url)).to eq(google_drive_upload_file_url(:upload_id => true))
+                expect(last_request(:method)).to eq(google_drive_upload_file_method)
+                expect(mail_deliveries).to be_empty
               end
             end
           end
@@ -116,10 +116,10 @@ module Chibi
                 expect_report_generator_run!
                 num_operator_reports = asserted_operators.inject(0) {|total, (k, v)| total + v.size}
                 asserted_last_invoice_number = num_operator_reports + last_invoice_number
-                last_request(:url).should == aws_s3_metadata_url
+                expect(last_request(:url)).to eq(aws_s3_metadata_url)
                 metadata_update = JSON.parse(last_request.body)["reports"]["operator"]
-                metadata_update["last_invoice_number"].should == asserted_last_invoice_number
-                metadata_update[report_year.to_s][report_month.to_s].should == Time.current.to_s
+                expect(metadata_update["last_invoice_number"]).to eq(asserted_last_invoice_number)
+                expect(metadata_update[report_year.to_s][report_month.to_s]).to eq(Time.current.to_s)
               end
             end
 
@@ -127,24 +127,24 @@ module Chibi
               expect_report_generator_run!
               with_asserted_operators(:email_enabled => true) do |country_code, operator_id, index|
                 mail_delivery = mail_deliveries[index]
-                mail_delivery.from.should == [mail_sender(country_code, operator_id)]
-                mail_delivery.to.should == mail_recipients(country_code, operator_id)
-                mail_delivery.cc.should == mail_cc(country_code, operator_id)
-                mail_delivery.bcc.should == mail_bcc(country_code, operator_id)
-                mail_delivery.subject.should == mail_subject(
+                expect(mail_delivery.from).to eq([mail_sender(country_code, operator_id)])
+                expect(mail_delivery.to).to eq(mail_recipients(country_code, operator_id))
+                expect(mail_delivery.cc).to eq(mail_cc(country_code, operator_id))
+                expect(mail_delivery.bcc).to eq(mail_bcc(country_code, operator_id))
+                expect(mail_delivery.subject).to eq(mail_subject(
                   report_year, report_month, country_code, operator_id
-                )
-                mail_delivery.text_part.decoded.should == mail_body(
+                ))
+                expect(mail_delivery.text_part.decoded).to eq(mail_body(
                   report_year, report_month, country_code, operator_id
-                )
+                ))
                 attachment = mail_delivery.attachments.first
-                attachment.body.decoded.size.should > 0
-                attachment.filename.should == File.basename(
+                expect(attachment.body.decoded.size).to be > 0
+                expect(attachment.filename).to eq(File.basename(
                   operator_suggested_filename(
                     report_year, report_month, country_code, operator_id
                   )
-                )
-                attachment.content_type.split(";").first.should == mime_type
+                ))
+                expect(attachment.content_type.split(";").first).to eq(mime_type)
               end
             end
           end

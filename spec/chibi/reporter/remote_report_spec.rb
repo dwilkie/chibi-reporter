@@ -37,8 +37,8 @@ module Chibi
                 expect_chibi_client_create_remote_report { subject.generate! }
               end
 
-              report_params["year"].should == "2013"
-              report_params["month"].should == "12"
+              expect(report_params["year"]).to eq("2013")
+              expect(report_params["month"]).to eq("12")
             end
           end
 
@@ -50,8 +50,8 @@ module Chibi
 
             it "should request the report to be generated for January 2014" do
               expect_chibi_client_create_remote_report { subject.generate! }
-              report_params["year"].should == "2014"
-              report_params["month"].should == "1"
+              expect(report_params["year"]).to eq("2014")
+              expect(report_params["month"]).to eq("1")
             end
           end
         end

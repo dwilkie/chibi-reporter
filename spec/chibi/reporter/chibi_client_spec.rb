@@ -10,7 +10,7 @@ module Chibi
         context "given the remote report is not available" do
           it "should return nil" do
             expect_chibi_client_get_remote_report(:chibi_client_get_remote_report_404) do
-              subject.get_remote_report.should be_nil
+              expect(subject.get_remote_report).to be_nil
             end
           end
         end
@@ -18,7 +18,7 @@ module Chibi
         context "given the remote report is available" do
           it "should return the report as a hash" do
             expect_chibi_client_get_remote_report do
-              subject.get_remote_report.should be_a(Hash)
+              expect(subject.get_remote_report).to be_a(Hash)
             end
             assert_chibi_client_remote_report_request(:get)
           end

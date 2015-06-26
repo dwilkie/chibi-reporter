@@ -170,11 +170,11 @@ module ChibiReporterSpecHelpers
     end
 
     def assert_chibi_client_remote_report_request(method)
-      first_request(:method).should == method
+      expect(first_request(:method)).to eq(method)
       uri = first_request.uri
-      uri.user.should == chibi_client_remote_report_uri.user
-      uri.password.should == chibi_client_remote_report_uri.password
-      uri.path.should == chibi_client_remote_report_uri.path
+      expect(uri.user).to eq(chibi_client_remote_report_uri.user)
+      expect(uri.password).to eq(chibi_client_remote_report_uri.password)
+      expect(uri.path).to eq(chibi_client_remote_report_uri.path)
     end
 
     def expect_chibi_client_get_remote_report(cassette = nil, options = {}, &block)
@@ -319,31 +319,31 @@ module ChibiReporterSpecHelpers
         describe ".enabled?" do
           it "should return whether or not this report is enabled" do
             result = subject.class.enabled?
-            result.should_not be_nil
-            result.should == operator_enabled?
+            expect(result).not_to be_nil
+            expect(result).to eq(operator_enabled?)
           end
         end
 
         describe "#email_enabled?" do
           it "should return whether or not this report has email enabled" do
             result = subject.email_enabled?
-            result.should_not be_nil
-            result.should == email_enabled?
+            expect(result).not_to be_nil
+            expect(result).to eq(email_enabled?)
           end
         end
 
         describe "#force_generate?" do
           it "should return whether or not this report should be force generated" do
             result = subject.force_generate?
-            result.should_not be_nil
-            result.should == force_generate?
+            expect(result).not_to be_nil
+            expect(result).to eq(force_generate?)
           end
         end
 
         describe "#generate!" do
           it "should create a report and return a string IO" do
             result = subject.generate!
-            result.should be_a(StringIO)
+            expect(result).to be_a(StringIO)
           end
         end
 
@@ -352,10 +352,10 @@ module ChibiReporterSpecHelpers
             subject.generate!
             2.times do
               result = subject.io_stream
-              result.should be_a(StringIO)
-              result.should_not be_eof
+              expect(result).to be_a(StringIO)
+              expect(result).not_to be_eof
               result.read
-              result.should be_eof
+              expect(result).to be_eof
             end
           end
         end
@@ -363,80 +363,80 @@ module ChibiReporterSpecHelpers
         describe "#suggested_filename" do
           it "should return a filename and path which includes the operator's name, our business name and report period" do
             result = subject.suggested_filename
-            result.should_not be_nil
-            result.should == operator_suggested_filename(year, month)
+            expect(result).not_to be_nil
+            expect(result).to eq(operator_suggested_filename(year, month))
           end
         end
 
         describe "#mime_type" do
           it "should return the correct mime type" do
             result = subject.mime_type
-            result.should_not be_nil
-            result.should == mime_type
+            expect(result).not_to be_nil
+            expect(result).to eq(mime_type)
           end
         end
 
         describe "#google_drive_root_directory_id" do
           it "should return google drive root directory id" do
             result = subject.google_drive_root_directory_id
-            result.should_not be_nil
-            result.should == google_drive_root_directory
+            expect(result).not_to be_nil
+            expect(result).to eq(google_drive_root_directory)
           end
         end
 
         describe "#aws_s3_root_directory" do
           it "should return the aws s3 root directory" do
             result = subject.aws_s3_root_directory
-            result.should_not be_nil
-            result.should == aws_s3_root_directory
+            expect(result).not_to be_nil
+            expect(result).to eq(aws_s3_root_directory)
           end
         end
 
         describe "#mail_subject" do
           it "should return an email subject line" do
             result = subject.mail_subject
-            result.should_not be_nil
-            result.should == mail_subject(year, month)
+            expect(result).not_to be_nil
+            expect(result).to eq(mail_subject(year, month))
           end
         end
 
         describe "#mail_recipients" do
           it "should return a list of mail recipients" do
             result = subject.mail_recipients
-            result.should_not be_empty
-            result.should == mail_recipients
+            expect(result).not_to be_empty
+            expect(result).to eq(mail_recipients)
           end
         end
 
         describe "#mail_cc" do
           it "should return a list of cc recipients" do
             result = subject.mail_cc
-            result.should_not be_empty
-            result.should == mail_cc
+            expect(result).not_to be_empty
+            expect(result).to eq(mail_cc)
           end
         end
 
         describe "#mail_bcc" do
           it "should return a list of bcc recipients" do
             result = subject.mail_bcc
-            result.should_not be_empty
-            result.should == mail_bcc
+            expect(result).not_to be_empty
+            expect(result).to eq(mail_bcc)
           end
         end
 
         describe "#mail_sender" do
           it "should return the mail sender" do
             result = subject.mail_sender
-            result.should_not be_nil
-            result.should == mail_sender
+            expect(result).not_to be_nil
+            expect(result).to eq(mail_sender)
           end
         end
 
         describe "#mail_body" do
           it "should return the mail body" do
             result = subject.mail_body
-            result.should_not be_nil
-            result.should == mail_body(year, month)
+            expect(result).not_to be_nil
+            expect(result).to eq(mail_body(year, month))
           end
         end
       end

@@ -10,7 +10,7 @@ module Chibi
         describe "#metadata" do
           it "should return the correct metadata file" do
             expect_external_request(:aws_s3_metadata_download, :erb => {:aws_s3_metadata_url => aws_s3_metadata_url}) do
-              JSON.parse(subject.metadata).should be_a(Hash)
+              expect(JSON.parse(subject.metadata)).to be_a(Hash)
             end
           end
         end
@@ -29,7 +29,7 @@ module Chibi
               )
             ) { subject.upload(file, :filename => filename, :root_directory => root_directory) }
 
-            last_request.body.should == file_contents
+            expect(last_request.body).to eq(file_contents)
           end
         end
       end

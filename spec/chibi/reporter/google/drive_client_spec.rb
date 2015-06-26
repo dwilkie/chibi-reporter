@@ -29,12 +29,12 @@ module Chibi
             end
 
             upload_metadata = JSON.parse(requests[2].body)
-            upload_metadata["title"].should == File.basename(filename)
-            upload_metadata["mimeType"].should == mime_type
-            upload_metadata["parents"].should == ["id" => File.dirname(filename)]
+            expect(upload_metadata["title"]).to eq(File.basename(filename))
+            expect(upload_metadata["mimeType"]).to eq(mime_type)
+            expect(upload_metadata["parents"]).to eq(["id" => File.dirname(filename)])
 
             upload = requests[3].body
-            upload.should == file_contents
+            expect(upload).to eq(file_contents)
           end
         end
       end
