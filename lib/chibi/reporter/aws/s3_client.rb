@@ -4,8 +4,12 @@ module Chibi
       class S3Client
         require 'aws-sdk'
 
-        def metadata_file
-          @metadata_file ||= object(metadata_file_key).get.body
+        def metadata
+          @metadata ||= metadata_object.get.body.read
+        end
+
+        def write_metadata(data)
+          metadata_object.put(:body => data)
         end
 
         def upload(file, options = {})
@@ -14,6 +18,10 @@ module Chibi
         end
 
         private
+
+        def metadata_object
+          @metadata_object ||= object(metadata_file_key)
+        end
 
         def metadata_file_key
           object_key(ENV["CHIBI_REPORTER_AWS_S3_METADATA_FILE"])

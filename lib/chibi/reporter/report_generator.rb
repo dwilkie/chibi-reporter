@@ -108,7 +108,7 @@ module Chibi
       end
 
       def metadata
-        @metadata ||= JSON.parse(metadata_file.read)
+        @metadata ||= JSON.parse(s3_client.metadata)
       end
 
       def reports_metadata
@@ -117,10 +117,6 @@ module Chibi
 
       def reports_operator_metadata
         reports_metadata[OPERATOR_KEY] || {}
-      end
-
-      def metadata_file
-        @metadata_file ||= s3_client.metadata_file
       end
 
       def remote_report
@@ -144,7 +140,7 @@ module Chibi
       end
 
       def write_reports_operator_metadata
-        metadata_file.write(
+        s3_client.write_metadata(
           metadata.deep_merge(
             REPORTS_KEY => {
               OPERATOR_KEY => {

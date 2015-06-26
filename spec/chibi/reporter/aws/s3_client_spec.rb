@@ -7,10 +7,10 @@ module Chibi
       describe S3Client do
         include ChibiReporterSpecHelpers::Aws::S3Client
 
-        describe "#metadata_file" do
+        describe "#metadata" do
           it "should return the correct metadata file" do
             expect_external_request(:aws_s3_metadata_download, :erb => {:aws_s3_metadata_url => aws_s3_metadata_url}) do
-              JSON.parse(subject.metadata_file.read).should be_a(Hash)
+              JSON.parse(subject.metadata).should be_a(Hash)
             end
           end
         end
