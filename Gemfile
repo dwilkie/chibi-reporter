@@ -6,7 +6,8 @@ gem 'activesupport'
 gem "httparty"
 gem 'rake'
 gem 'aws-sdk'
-gem 'google-api-client'
+gem 'google-api-client', :github => "google/google-api-ruby-client"
+gem 'googleauth', :github => "dwilkie/google-auth-library-ruby", :branch => "load_credentials_from_env"
 gem 'mail'
 gem 'recipient_interceptor'
 gem 'httpclient'

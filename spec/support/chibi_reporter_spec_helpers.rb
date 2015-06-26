@@ -261,7 +261,7 @@ module ChibiReporterSpecHelpers
       end
 
       def google_drive_find_directory_url(title, parent_directory)
-        "https://www.googleapis.com/drive/v2/files?q=mimeType='#{google_drive_folder_mime_type}'%20AND%20trashed=false%20AND%20title='#{title}'%20AND%20'#{parent_directory}'%20in%20parents"
+        "https://www.googleapis.com/drive/v2/files?q=mimeType=%27#{google_drive_folder_mime_type}%27%20AND%20trashed=false%20AND%20title=%27#{title}%27%20AND%20%27#{parent_directory}%27%20in%20parents"
       end
 
       def google_drive_folder_mime_type
@@ -269,11 +269,11 @@ module ChibiReporterSpecHelpers
       end
 
       def google_oauth_url
-        "https://accounts.google.com/o/oauth2/token"
+        "https://www.googleapis.com/oauth2/v3/token"
       end
 
       def google_drive_upload_file_url(options = {})
-        base_url = "https://www.googleapis.com/upload/drive/v2/files?alt=json&uploadType=resumable"
+        base_url = "https://www.googleapis.com/upload/drive/v2/files"
         base_url << "&upload_id=upload_id" if options[:upload_id]
         base_url
       end

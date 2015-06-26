@@ -81,7 +81,11 @@ http_interactions:
       message: OK
     headers:
       <% if google_drive_url[:location] %>
-      Location:
+      X-Goog-Upload-Status:
+      - active
+      X-Goog-Upload-Url:
+      - <%= google_drive_url[:location] %>
+      X-Goog-Upload-Control-Url:
       - <%= google_drive_url[:location] %>
       <% end %>
       Expires:

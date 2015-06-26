@@ -2,18 +2,16 @@ module Chibi
   module Reporter
     module Google
       class DriveClient
-        require 'google/api_client'
+        require 'googleauth'
+        require 'google/apis/drive_v2'
         require 'json'
-        Faraday.default_adapter = :httpclient
 
         def upload(file, options = {})
           upload_file(
-            file,
-            :title => options[:title] || File.basename(options[:filename]),
-            :mime_type => options[:mime_type],
-            :parent_directory => find_or_create_directory_structure(
-              options[:filename], options[:root_directory]
-            )
+            options[:title] || File.basename(options[:filename]),
+            find_or_create_directory_structure(options[:filename], options[:root_directory]),
+            options[:mime_type],
+            file
           )
         end
 
@@ -28,79 +26,38 @@ module Chibi
         end
 
         def find_or_create_directory(title, parent_id)
-          (
-            JSON.parse(
-              client.execute(
-                :api_method => api.files.list,
-                :parameters => {
-                  :q => "mimeType='#{directory_mime_type}' AND trashed=false AND title='#{title}' AND '#{parent_id}' in parents"
-                }
-              ).body
-            )["items"].first || {}
-          )["id"] || JSON.parse(
-            client.execute(
-              :api_method => api.files.insert,
-              :body_object => api.files.insert.request_schema.new(
-                "title" => title,
-                "mimeType" => directory_mime_type,
-                "parents" => ["id" => parent_id]
-              )
-            ).body
-          )["id"]
+          get_directory(title, parent_id) || create_directory(title, parent_id)
         end
 
         def directory_mime_type
           'application/vnd.google-apps.folder'
         end
 
-        def upload_file(file, options = {})
-          connection = Faraday.default_connection
-          connection.options[:timeout] = 500
-          connection.ssl[:verify] = false
-          result = client.execute(
-            :api_method => api.files.insert,
-            :body_object => api.files.insert.request_schema.new(
-              'title' => options[:title],
-              'mimeType' => options[:mime_type],
-              'parents' => ["id" => options[:parent_directory]]
-            ),
-            :media => ::Google::APIClient::UploadIO.new(file, options[:mime_type]),
-            :parameters => {
-              'uploadType' => 'resumable',
-              'alt' => 'json'
-            },
-            :connection => connection
-          )
-
-          upload = result.resumable_upload
-
-          # Resume if needed
-          if upload.resumable?
-            client.execute(upload)
-          end
+        def get_directory(title, parent_id)
+          directory = drive.list_files(:q => "mimeType='#{directory_mime_type}' AND trashed=false AND title='#{title}' AND '#{parent_id}' in parents").items.first
+          directory && directory.id
         end
 
-        def client
-          return @client if @client
-          @client = ::Google::APIClient.new(
-            :application_name => "chibi-reporter",
-            :application_version => "0.0.1"
-          )
-          @client.authorization.client_id = ENV["GOOGLE_DRIVE_UPLOADER_CLIENT_ID"]
-          @client.authorization.client_secret = ENV["GOOGLE_DRIVE_UPLOADER_CLIENT_SECRET"]
-          @client.authorization.scope = ENV["GOOGLE_DRIVE_UPLOADER_OAUTH_SCOPE"]
-          @client.authorization.refresh_token = ENV["GOOGLE_DRIVE_UPLOADER_REFRESH_TOKEN"]
-          @client.authorization.grant_type = ENV["GOOGLE_DRIVE_UPLOADER_GRANT_TYPE"]
-          @client.authorization.fetch_access_token!
-          @client
+        def create_directory(title, parent_id)
+          upload_file(title, parent_id, directory_mime_type).id
         end
 
-        def api
-          return @api if @api
-          client.register_discovery_document(
-            'drive', 'v2', File.read(ENV["GOOGLE_API_DISCOVERY_DOCUMENT_PATH"])
+        def upload_file(title, parent_directory_id, mime_type, file = nil)
+          drive.insert_file(
+            {
+              :title => title,
+              :mime_type => mime_type,
+              :parents => [{:id => parent_directory_id}]},
+            :upload_source => file
           )
-          @api = client.discovered_api('drive', 'v2')
+        end
+
+        def drive
+          return @drive if @drive
+          @drive = ::Google::Apis::DriveV2::DriveService.new
+          @drive.authorization = ::Google::Auth.get_application_default([::Google::Apis::DriveV2::AUTH_DRIVE])
+          @drive.authorization.grant_type = ENV["GOOGLE_GRANT_TYPE"]
+          @drive
         end
       end
     end
