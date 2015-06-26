@@ -19,7 +19,7 @@ group :test do
   gem 'dotenv'
   gem 'rspec'
   gem 'webmock'
-  gem 'vcr', :git => "git://github.com/vcr/vcr.git"
+  gem 'vcr'
   gem 'timecop'
   gem 'rack'
 end

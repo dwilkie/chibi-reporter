@@ -5,12 +5,12 @@ module Chibi
         require 'aws-sdk'
 
         def metadata_file
-          @metadata_file ||= bucket.objects[metadata_file_key]
+          @metadata_file ||= object(metadata_file_key).get.body
         end
 
         def upload(file, options = {})
           key = File.join(object_key(options[:root_directory]), options[:filename])
-          bucket.objects[key].write(file)
+          object(key).put(:body => file)
         end
 
         private
@@ -24,14 +24,19 @@ module Chibi
         end
 
         def s3
-          @s3 ||= ::AWS::S3.new(
-            :access_key_id => ENV["AWS_ACCESS_KEY_ID"],
-            :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"]
-          )
+          @s3 ||= ::Aws::S3::Resource.new
         end
 
         def bucket
-          @bucket ||= s3.buckets[ENV["AWS_S3_BUCKET"]]
+          @bucket ||= s3.bucket(bucket_name)
+        end
+
+        def object(key)
+          bucket.object(key)
+        end
+
+        def bucket_name
+          ENV["AWS_S3_BUCKET"]
         end
       end
     end

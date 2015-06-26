@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <%= aws_s3_metadata_url %>
+    body:
+      encoding: ASCII-8BIT
+      string: ''
+    headers:
+      Content-Type:
+      - ''
+      Accept-Encoding:
+      - ''
+      User-Agent:
+      - aws-sdk-ruby2/2.1.2 ruby/2.2.2 x86_64-linux
+      Date:
+      - Fri, 26 Jun 2015 04:46:17 GMT
+      Authorization:
+      - AWS aws_access_key_id:aws_secret_access_key=
+      Content-Length:
+      - '0'
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - g1SYRU4PUz958/YMyv5QgYiCSzTKJb1Vkv9EedhzomosLYEHKiLWu5oYGago5EFUZ3a3S4Q5VEM=
+      X-Amz-Request-Id:
+      - 141E4A64A723BAFC
+      Date:
+      - Fri, 26 Jun 2015 04:46:20 GMT
+      Last-Modified:
+      - Mon, 01 Jun 2015 02:00:51 GMT
+      Etag:
+      - '"49a444ffdf4c3303978e052364f9c872"'
+      Accept-Ranges:
+      - bytes
+      Content-Type:
+      - ''
+      Content-Length:
+      - '789'
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: '{"reports":{"operator":{"last_invoice_number":103,"2013":{"11":"2013-12-12
+        17:21:49 +0700","8":"2013-12-12 22:28:23 +0700","9":"2013-12-12T22:35:06+07:00","10":"2013-12-12
+        22:56:09 +0700","12":"2014-01-01 21:06:57 +0700"},"2014":{"1":"2014-02-02
+        09:00:51 +0700","2":"2014-03-01 09:01:07 +0700","3":"2014-04-01 09:00:58 +0700","4":"2014-05-01
+        09:02:46 +0700","5":"2014-06-01 09:01:03 +0700","6":"2014-07-01 09:04:02 +0700","7":"2014-08-01
+        09:01:00 +0700","8":"2014-09-01 09:01:24 +0700","9":"2014-10-01 09:01:18 +0700","10":"2014-11-01
+        09:02:03 +0700","11":"2014-12-01 09:00:44 +0700","12":"2015-01-01 09:00:55
+        +0700"},"2015":{"1":"2015-02-01 09:01:01 +0700","2":"2015-03-01 09:01:08 +0700","3":"2015-04-01
+        09:01:19 +0700","4":"2015-05-01 09:00:52 +0700","5":"2015-06-01 09:00:50 +0700"}}}}'
+    http_version:
+  recorded_at: Fri, 26 Jun 2015 04:46:18 GMT
+recorded_with: VCR 2.9.3
