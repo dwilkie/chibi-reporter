@@ -54,6 +54,7 @@ module Chibi
 
         def drive
           return @drive if @drive
+          ::Google::Apis::RequestOptions.default.retries = 5
           @drive = ::Google::Apis::DriveV2::DriveService.new
           @drive.authorization = ::Google::Auth.get_application_default([::Google::Apis::DriveV2::AUTH_DRIVE])
           @drive.authorization.grant_type = ENV["GOOGLE_GRANT_TYPE"]
