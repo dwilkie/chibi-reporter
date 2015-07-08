@@ -1,19 +1,6 @@
 GIT
-  remote: git://github.com/dwilkie/google-auth-library-ruby.git
-  revision: 15fbf92199c6be2d45bac8170cd11a7536e54aff
-  branch: load_credentials_from_env
-  specs:
-    googleauth (0.4.1)
-      faraday (~> 0.9)
-      jwt (~> 1.4)
-      logging (~> 2.0)
-      memoist (~> 0.12)
-      multi_json (~> 1.11)
-      signet (~> 0.6)
-
-GIT
   remote: git://github.com/google/google-api-ruby-client.git
-  revision: 73e78c692df2dd5559d100a4142dadc6665c0199
+  revision: 2710bcd8fe5804b3065e8bedbf70aa451f45a048
   specs:
     google-api-client (0.9.pre1)
       activesupport (>= 3.2)
@@ -29,11 +16,24 @@ GIT
       virtus (~> 1.0)
 
 GIT
+  remote: git://github.com/google/google-auth-library-ruby.git
+  revision: caed076711de9375772123560837975f118238fb
+  specs:
+    googleauth (0.4.1)
+      faraday (~> 0.9)
+      jwt (~> 1.4)
+      logging (~> 2.0)
+      memoist (~> 0.12)
+      multi_json (~> 1.11)
+      signet (~> 0.6)
+
+GIT
   remote: git://github.com/randym/axlsx.git
-  revision: 1bec39cebaef6a98481f52587ecc0483b4defc08
+  revision: 1549f3fbacc72a7c091313860558114124962c81
   specs:
     axlsx (2.1.0.pre)
       htmlentities (~> 4.3.1)
+      mimemagic (~> 0.3)
       nokogiri (>= 1.4.1)
       rubyzip (~> 1.1.7)
 
@@ -47,12 +47,12 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     addressable (2.3.8)
-    aws-sdk (2.1.2)
-      aws-sdk-resources (= 2.1.2)
-    aws-sdk-core (2.1.2)
+    aws-sdk (2.1.3)
+      aws-sdk-resources (= 2.1.3)
+    aws-sdk-core (2.1.3)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.1.2)
-      aws-sdk-core (= 2.1.2)
+    aws-sdk-resources (2.1.3)
+      aws-sdk-core (= 2.1.3)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
@@ -71,7 +71,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     foreman (0.78.0)
       thor (~> 0.19.1)
-    htmlentities (4.3.3)
+    htmlentities (4.3.4)
     httparty (0.13.5)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
@@ -91,9 +91,10 @@ GEM
       mime-types (>= 1.16, < 3)
     memoist (0.12.0)
     mime-types (2.6.1)
+    mimemagic (0.3.0)
     mini_portile (0.6.2)
     minitest (5.7.0)
-    multi_json (1.11.0)
+    multi_json (1.11.2)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
     nokogiri (1.6.6.2)
