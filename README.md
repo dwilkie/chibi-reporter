@@ -81,3 +81,25 @@ Note that this will *not* resend any emails.
 ## Configuration
 
 Configuration is done with environment variables. Refer to [.env](https://github.com/dwilkie/chibi-reporter/blob/master/.env) for configuration options
+
+### Updating the Google Refresh Token
+
+After a long period of time the Google Refresh Token will expire. Follow the instructions below to update the refresh token:
+
+```ruby
+require 'googleauth'
+require 'googleauth/stores/file_token_store'
+
+OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
+
+scope = 'https://www.googleapis.com/auth/drive'
+client_id = Google::Auth::ClientId.from_file(ENV["GOOGLE_CLIENT_ID"], ENV["GOOGLE_CLIENT_SECRET"])
+token_store = Google::Auth::Stores::FileTokenStore.new
+authorizer = Google::Auth::UserAuthorizer.new(client_id, scope, token_store)
+
+url = authorizer.get_authorization_url(base_url: OOB_URI )
+
+# open url in browser and copy authorization code
+
+credentials = authorizer.get_credentials_from_code(code: code, base_url: OOB_URI)
+```
