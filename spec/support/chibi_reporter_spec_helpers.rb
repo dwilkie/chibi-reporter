@@ -162,18 +162,28 @@ module ChibiReporterSpecHelpers
       URI.parse(ENV['CHIBI_REPORTER_CLIENT_REMOTE_REPORT_URL'])
     end
 
+    def get_url_without_auth(url)
+      uri = URI.parse(url)
+      uri.user = nil
+      uri.password = nil
+      uri.to_s
+    end
+
     def expect_chibi_client_remote_report_request(cassette, options = {}, &block)
       options[:erb] = {
-        :chibi_client_remote_report_url => chibi_client_remote_report_uri.to_s
+        :chibi_client_remote_report_url => get_url_without_auth(chibi_client_remote_report_uri.to_s)
       }.merge(options[:erb] || {})
       expect_external_request(cassette, options, &block)
     end
 
     def assert_chibi_client_remote_report_request(method)
       expect(first_request(:method)).to eq(method)
-      uri = first_request.uri
-      expect(uri.user).to eq(chibi_client_remote_report_uri.user)
-      expect(uri.password).to eq(chibi_client_remote_report_uri.password)
+      http_request = first_request
+      uri = http_request.uri
+      authorization = Base64.decode64(http_request.headers["Authorization"].sub(/^Basic\s/, ""))
+      user, password = authorization.split(":")
+      expect(user).to eq(chibi_client_remote_report_uri.user)
+      expect(password).to eq(chibi_client_remote_report_uri.password)
       expect(uri.path).to eq(chibi_client_remote_report_uri.path)
     end
 
